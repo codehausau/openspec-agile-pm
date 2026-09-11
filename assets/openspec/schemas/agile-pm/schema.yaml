@@ -1,0 +1,462 @@
+name: agile-pm
+version: 4
+description: Lightweight product discovery and capability-based PRDs before spec-driven delivery
+artifacts:
+  - id: product-brief
+    generates: product-brief.md
+    description: Product discovery brief for the smallest useful learning loop
+    template: product-brief.md
+    instruction: |
+      Act as a pragmatic product manager and turn the initial idea into a concise
+      product brief. Ground it in repository evidence and existing product
+      documents. Clearly separate facts from assumptions; never invent customer
+      research, demand, metrics, or commitments.
+
+      Begin with a lightweight conversation about the human's vision or the thing
+      being built. Reflect back your understanding and ask focused, high-leverage
+      questions wherever the intended user, problem, outcome, context, constraints,
+      trade-offs, or acceptable first increment are unclear. Ask no more than three
+      questions at a time, adapt follow-ups to the answers, and do not force a fixed
+      questionnaire. The goal is shared understanding, not completion of a phase.
+
+      Explore alternatives before converging. Optimize for the smallest useful
+      spiral that can produce feedback, not a complete long-range solution. If
+      the target user, problem, desired outcome, or acceptable scope is materially
+      unclear, ask the user rather than silently choosing.
+
+      End with an explicit pursue, research, or park recommendation. A research
+      or park recommendation intentionally stops this change before the PRD; do
+      not create downstream artifacts unless the user later changes the decision
+      to pursue. Keep the brief to roughly one page. This is discovery, not a
+      technical design. Before treating the brief as complete, show the human the
+      proposed problem, outcome, smallest spiral, assumptions, and recommendation;
+      revise until it represents what they want.
+    requires: []
+
+  - id: prd
+    generates: prd.md
+    description: Owning product document and capability PRD index for the selected spiral
+    template: prd.md
+    instruction: |
+      Create the owning lean PRD from the approved product brief. Define the
+      overall hypothesis, outcomes, smallest testable increment, feedback loop,
+      and product boundaries. Keep detailed requirements out of this file.
+      Write in clear product language for project users and stakeholders. This
+      approved PRD set will be published as durable project documentation when
+      the change is archived, so exclude secrets, transient internal notes, and
+      implementation detail that does not help readers understand product intent.
+
+      Create this artifact only when the product brief recommends pursue and the
+      user has explicitly agreed to proceed. For research or park, stop and leave
+      the PRD absent. If the user chooses pursue after further discovery, update
+      the brief first so it records that decision.
+
+      Re-engage the human while shaping the PRD. Confirm the product hypothesis,
+      outcomes, boundaries, feedback loop, and capability decomposition rather
+      than inferring agreement from the brief. Ask focused questions when a choice
+      would materially affect product intent, priority, safety, compatibility, or
+      acceptance. Offer a small number of concrete alternatives when that helps;
+      do not run a fixed questionnaire or prescribe a complete long-range plan.
+
+      Define an exhaustive Capability PRD Index. Each capability path is relative
+      to prd/capabilities/, omits the .md suffix, and uses lowercase kebab-case
+      path segments. Index at least one capability. Every indexed entry will be
+      detailed in prd/capabilities/<capability-path>.md by the prd-capabilities
+      artifact. Do not confuse these product capability documents with OpenSpec
+      specs: capability PRDs define product intent and priority; specs later
+      define normative behavior and test scenarios.
+
+      Include measurable success signals where evidence supports them. Label an
+      unvalidated target as an assumption instead of presenting it as fact.
+      Resolve any open decision that would materially change scope or acceptance
+      before completing the PRD; ask the user when needed. Do not turn possible
+      later spirals into current scope. Treat the PRD set as an evolving product
+      model: review drafts with the human and revise them iteratively until they
+      accurately express the current capability increment.
+    requires:
+      - product-brief
+
+  - id: prd-capabilities
+    generates: "prd/capabilities/**/*.md"
+    description: Detailed product requirements organized by capability
+    template: prd-capability.md
+    instruction: |
+      Create exactly one capability PRD for every entry in prd.md's Capability
+      PRD Index at prd/capabilities/<capability-path>.md. The index and files on
+      disk must match exactly: no missing, duplicate, or unindexed capability
+      documents. Preserve the indexed path and priority.
+
+      Each capability PRD defines product intent and priority, not an OpenSpec
+      normative behavior contract or implementation design. Include its purpose,
+      user outcome, in-scope behavior, functional and non-functional requirements,
+      product-level acceptance outcomes, dependencies, risks, and exclusions.
+      Record assumptions and any open decisions that are safe to defer without
+      changing current scope or acceptance.
+
+      Write each document as user-facing product documentation that remains useful
+      after delivery. Explain product behavior and boundaries in plain language,
+      avoid repository-internal shorthand, and never include secrets. OpenSpec
+      specs remain the separate source for normative behavior and test scenarios.
+
+      Requirement IDs are local to the capability: FR-001, FR-002, ... and
+      NFR-001, NFR-002, .... Give each requirement a Must, Should, or Could
+      priority. Requirements describe observable product behavior or constraints,
+      not implementation details. Keep Must scope to the minimum needed to test
+      the spiral. Downstream references must qualify each ID as
+      `<change-name>#<capability-path>/FR-001` or
+      `<change-name>#<capability-path>/NFR-001`.
+
+      Resolve decisions that would materially change scope or acceptance before
+      completing the PRD set. Label unvalidated targets as assumptions, and do
+      not promote candidate later spirals into current capability scope. Ask the
+      human when requirement intent, priority, acceptance, dependencies, risks, or
+      exclusions are uncertain; do not silently choose on their behalf.
+    requires:
+      - prd
+
+  - id: product-approval
+    generates: product-approval.md
+    description: Durable product-owner approval of the complete PRD set
+    template: product-approval.md
+    instruction: |
+      This is a human approval gate, not a document-generation exercise. Present
+      prd.md hypothesis, boundaries, and feedback loop plus every capability PRD's
+      Must requirements, acceptance outcomes, assumptions, and open decisions.
+      Create product-approval.md only after the user explicitly approves this
+      exact complete PRD set for engineering planning. Silence, previous discovery
+      answers, or a request to revise do not count.
+
+      Tell the approver that a byte-for-byte copy of the approved PRD set will be
+      published under docs/product/<archive-target>/ when the change is archived.
+      Approval therefore covers both engineering planning and that documentation
+      publication. Record the publication authorization in product-approval.md.
+      Revise the PRD set first if it is not suitable for project users.
+
+      Before approval, verify that prd.md's index contains every and only Markdown
+      file under prd/capabilities/, with unique lowercase kebab-case paths. Compute
+      the deterministic PRD-set SHA-256 as follows:
+      1. Order paths as prd.md first, followed by every indexed capability file in
+         bytewise lexical path order.
+      2. SHA-256 each file's raw bytes and write one UTF-8 manifest line per file
+         as `<lowercase-file-digest><two spaces><relative-path><LF>`.
+      3. SHA-256 the exact manifest bytes and record that lowercase 64-hex digest
+         plus the manifest file count in product-approval.md.
+      Any content, index, path, addition, removal, or rename changes this digest
+      and invalidates approval. If the user requests changes, remove any existing
+      approval before editing the PRD set and ask again afterward. Never record a
+      rejected, research, or park decision as an approval file.
+
+      Approval is a durable snapshot for coherent engineering work, not an
+      irreversible waterfall phase. If later learning changes product intent,
+      remove stale approval before revising the PRD set, obtain explicit approval
+      of the new digest, and reconcile affected downstream artifacts.
+    requires:
+      - prd
+      - prd-capabilities
+
+  - id: proposal
+    generates: proposal.md
+    description: Initial proposal document outlining the change
+    template: proposal.md
+    instruction: |
+      Create the OpenSpec engineering handoff from the approved PRD set. Do not
+      reopen product scope or add features absent from the owning PRD and indexed
+      capability PRDs.
+
+      This proposal starts the development handoff. Translate approved product
+      intent into OpenSpec capability work without copying the PRD wholesale.
+      Product capability paths and spec capability paths may differ.
+
+      Before writing, validate the exact index/file match and recompute the PRD-set
+      digest using the manifest algorithm in the product-approval instructions.
+      Compare the digest and file count with product-approval.md. If either differs,
+      stop and obtain fresh product-owner approval; do not create or update
+      engineering artifacts from a stale approval.
+
+      Sections:
+      - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
+      - **What Changes**: Bullet list of changes. Be specific about new capabilities, modifications, or removals. Mark breaking changes with **BREAKING**.
+      - **Capabilities**: Identify which specs will be created or modified:
+        - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<capability-path>/spec.md`. Use kebab-case for path segments you introduce (e.g., `user-auth` or `identity/user-auth`) and follow the project's existing spec organization.
+        - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Use the exact existing path under `openspec/specs/`. Leave empty if no requirement changes.
+      - **Impact**: Affected code, APIs, dependencies, or systems.
+
+      IMPORTANT: The Capabilities section is critical. It creates the contract between
+      proposal and specs phases. Research existing specs before filling this in.
+      Each capability listed here will need a corresponding spec file.
+
+      Every change must either declare at least one capability (new or
+      modified) or explicitly opt out of specs: `openspec validate` rejects a
+      change with zero deltas unless the change's `.openspec.yaml` sets
+      `skip_specs: true`. Use `skip_specs: true` only when no spec-level
+      behavior changes (pure refactor, tooling, docs) - specs describe
+      behavior, so if behavior does not change, no spec should change either.
+      The complete PRD set must also contain zero Must requirements; otherwise
+      its mandatory OpenSpec traceability requires specs. Do not invent a
+      requirement just to satisfy validation.
+
+      Keep it concise (1-2 pages). Focus on the "why" not the "how" -
+      implementation details belong in design.md.
+
+      In each OpenSpec capability description, cite the capability PRD requirement
+      IDs it delivers, qualified as
+      `<change-name>#<capability-path>/FR-001` or
+      `<change-name>#<capability-path>/NFR-001` so references remain unambiguous
+      after archive. Product capabilities and OpenSpec spec capabilities may map
+      many-to-many; do not assume matching paths.
+      The PRD set remains the source of product intent and priority; this proposal
+      translates its selected spiral into OpenSpec capabilities.
+
+      If proposal work exposes a product ambiguity or missing requirement, stop
+      only the affected work, return to the PRD set for human clarification and
+      reapproval, then continue. Do not hide the discovery or force the entire
+      change to restart.
+    requires:
+      - product-approval
+      - prd
+      - prd-capabilities
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: Detailed specifications for the change
+    template: spec.md
+    instruction: |
+      Create specification files that define WHAT the system should do.
+
+      Before writing, validate the exact PRD index/file match and recompute the
+      PRD-set digest using the manifest algorithm in the product-approval
+      instructions. Compare the digest and file count with product-approval.md.
+      Stop for renewed approval if either differs.
+
+      A spec is a behavior contract, not an implementation plan.
+
+      Good spec content:
+      - Observable behavior users or downstream systems rely on
+      - Inputs, outputs, and error conditions
+      - External constraints (security, privacy, reliability, compatibility)
+      - Scenarios that can be tested or explicitly validated
+
+      Avoid in specs:
+      - Internal class/function names
+      - Library or framework choices
+      - Step-by-step implementation details
+      - Detailed execution plans (those belong in design.md or tasks.md)
+
+      Quick test: if the implementation can change without changing externally
+      visible behavior, it likely does not belong in the spec.
+
+      Create one spec file per capability listed in the proposal's Capabilities section.
+      `<capability-path>` is the spec directory relative to `specs/` (for example,
+      `user-auth` or `identity/user-auth`). Preserve the full path:
+      - New capabilities: use the exact path from the proposal at `specs/<capability-path>/spec.md`. Any path segment newly introduced in the proposal must be kebab-case. Follow the project's existing organization; do not add a new domain level when the project uses a flat layout.
+      - Modified capabilities: use the exact existing path from `openspec/specs/<capability-path>/` when creating the delta at `specs/<capability-path>/spec.md`. Do not move or rename the capability.
+
+      There must be at least one spec file unless the change's `.openspec.yaml`
+      sets `skip_specs: true` (no spec-level behavior change) - `openspec validate`
+      rejects a zero-delta change without that marker. If the proposal lists no
+      capabilities and `skip_specs` is not set, revisit the proposal first. Never
+      use `skip_specs` when any indexed capability PRD contains a Must requirement;
+      every Must requires an OpenSpec requirement mapping.
+
+      Delta operations (use ## headers):
+      - **ADDED Requirements**: New capabilities
+      - **MODIFIED Requirements**: Changed behavior - MUST include full updated content
+      - **REMOVED Requirements**: Deprecated features - MUST include **Reason** and **Migration**
+      - **RENAMED Requirements**: Name changes only - use FROM:/TO: format
+
+      Format requirements:
+      - Each requirement: `### Requirement: <name>` followed by description
+      - Use SHALL/MUST for normative requirements (avoid should/may)
+      - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
+      - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
+      - Every requirement MUST have at least one scenario.
+
+      New capabilities only: start the delta spec with a `## Purpose` section -
+      one or two sentences (50+ characters, or `openspec validate --strict`
+      reports it as too brief) describing what the capability is for. Archive
+      copies it into the main spec it creates; without it the new main spec is
+      left with a `TBD ... Update Purpose after archive` placeholder to fill in
+      by hand. Do NOT add `## Purpose` to a delta for an existing capability -
+      that spec already has one and the delta's is ignored. To change an
+      existing capability's Purpose - including a leftover `TBD` placeholder -
+      edit `<planningHome.root>/openspec/specs/<capability-path>/spec.md`
+      directly. `planningHome.root` comes from the `openspec instructions ...
+      --json` response. Always use it rather than a repo-relative path: it
+      resolves to the store whenever the change lives in one - whether that
+      came from `--store`, a project `store:` pointer, or a global default
+      store - and to the current repository otherwise. Do not try to work out
+      which case applies; the field already has.
+
+      MODIFIED requirements workflow:
+      1. Locate the existing requirement in `<planningHome.root>/openspec/specs/<capability-path>/spec.md` (the same store-aware root as above)
+      2. Copy the ENTIRE requirement block (from `### Requirement:` through all scenarios)
+      3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
+      4. Ensure header text matches exactly (whitespace-insensitive)
+
+      Common pitfall: Using MODIFIED with partial content loses detail at archive time.
+      If adding new concerns without changing existing behavior, use ADDED instead.
+
+      Example (a new capability, so it opens with `## Purpose`):
+      ```
+      ## Purpose
+
+      Lets users take their data out of the product in a portable format.
+
+      ## ADDED Requirements
+
+      ### Requirement: User can export data
+      The system SHALL allow users to export their data in CSV format.
+
+      #### Scenario: Successful export
+      - **WHEN** user clicks "Export" button
+      - **THEN** system downloads a CSV file with all user data
+
+      ## REMOVED Requirements
+
+      ### Requirement: Legacy export
+      **Reason**: Replaced by new export system
+      **Migration**: Use new export endpoint at /api/v2/export
+      ```
+
+      Specs should be testable - each scenario is a potential test case. Add a
+      `**PRD Traceability:**` line to each requirement with qualified references
+      such as `<change-name>#<capability-path>/FR-001`. Every Must requirement in
+      every indexed capability PRD must map to at least one OpenSpec requirement.
+      If it cannot, revise and reapprove the PRD set before writing specs;
+      engineering planning cannot silently drop it. Capability PRDs define product
+      intent and priority; these specs define normative behavior and test scenarios.
+      If specification work reveals a product decision, route it back to the human
+      and approved PRD set instead of inventing product intent in the spec.
+    requires:
+      - proposal
+      - product-approval
+      - prd
+      - prd-capabilities
+
+  - id: design
+    generates: design.md
+    description: Technical design document with implementation details
+    template: design.md
+    instruction: |
+      Create the design document that explains HOW to implement the change.
+
+      Before writing, validate the exact PRD index/file match and recompute the
+      PRD-set digest using the manifest algorithm in the product-approval
+      instructions. Compare the digest and file count with product-approval.md.
+      Stop for renewed approval if either differs.
+
+      Always create design.md because tasks depend on it. For a simple change,
+      keep it brief and state when no significant design decision or migration
+      is needed.
+
+      Sections:
+      - **Context**: Only the current state and constraints needed to explain the approach. Reference the proposal for motivation instead of restating it (e.g., "See proposal.md - Why").
+      - **Goals / Non-Goals**: What this design achieves and explicitly excludes. Don't restate the proposal's scope - add only design-level boundaries.
+      - **Decisions**: Key technical choices with rationale (why X over Y?). Include alternatives considered for each decision.
+      - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation
+      - **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
+      - **Open Questions**: Unknowns that can safely be answered later without
+        changing the specs, the approach, or the task breakdown. Omit if none.
+
+      Open questions are for genuinely deferrable unknowns, not decisions you
+      skipped. If a question would change the specs, the chosen approach, or
+      the task breakdown, resolve it now - ask the user instead of guessing.
+
+      Focus on architecture and approach, not line-by-line implementation.
+      The proposal covers why and what; design covers how. Reference the
+      proposal for motivation and, once written, the specs for requirements -
+      if a section would only restate them, point to them instead.
+
+      Good design docs explain the "why" behind technical decisions. Preserve
+      the PRD set's product and operational constraints, and do not use design
+      choices to expand the approved spiral.
+
+      If design work exposes a product decision or changes product intent,
+      acceptance, or priority, stop only the affected work. Return to the human,
+      remove stale approval, revise and reapprove the PRD set, then reconcile the
+      affected proposal, specs, design, and tasks before continuing.
+    requires:
+      - proposal
+      - product-approval
+      - prd
+      - prd-capabilities
+
+  - id: tasks
+    generates: tasks.md
+    description: Implementation checklist with trackable tasks
+    template: tasks.md
+    instruction: |
+      Create the task list that breaks down the implementation work.
+
+      Before writing, validate the exact PRD index/file match and recompute the
+      PRD-set digest using the manifest algorithm in the product-approval
+      instructions. Compare the digest and file count with product-approval.md.
+      Stop for renewed approval if either differs.
+
+      Before writing tasks, check design.md for Open Questions. If any of them
+      would change what gets built, resolve them with the user first - do not
+      bake an unstated assumption into the task list.
+
+      **IMPORTANT: Follow the template below exactly.** The apply phase parses
+      checkbox format to track progress. Tasks not using `- [ ]` won't be tracked.
+
+      Guidelines:
+      - Group related tasks under ## numbered headings
+      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
+      - Tasks should be small enough to complete in one session
+      - Order tasks by dependency (what must be done first?)
+      - Each task MUST state how to verify completion (a test, command,
+        observable behavior, or delivered artifact). Put the verification in
+        that task's checkbox description. Use a separate verification task only
+        when it checks broader integration or system behavior that spans
+        multiple implementation tasks.
+
+      Example:
+      ```
+      ## 1. Setup
+
+      - [ ] 1.1 Create new module structure and verify expected files are present
+      - [ ] 1.2 Add dependencies to package.json and verify package installation succeeds
+
+      ## 2. Core Implementation
+
+      - [ ] 2.1 Implement data export function and verify the export test passes
+      - [ ] 2.2 Add CSV formatting utilities and verify unit tests cover quoting and delimiters
+      ```
+
+      Reference specs for what needs to be built, design for how to build it.
+      Ensure the task set covers every Must requirement in every indexed capability
+      PRD and includes the feedback or measurement work needed to close this
+      product spiral. Include capability-qualified PRD IDs and relevant spec
+      requirement names in each task description.
+
+      The resulting tasks are the implementation handoff. Keep them aligned with
+      the approved PRD set and normative specs; do not turn candidate future
+      spirals into current implementation work.
+
+      If task planning reveals missing product intent or a changed acceptance
+      outcome, stop only the affected planning. Return to the human, remove stale
+      approval, revise and reapprove the PRD set, then reconcile affected
+      engineering artifacts before completing the implementation handoff.
+    requires:
+      - specs
+      - design
+      - product-approval
+      - prd
+      - prd-capabilities
+
+apply:
+  requires: [ tasks ]
+  tracks: tasks.md
+  instruction: |
+    Before implementation, validate the exact PRD index/file match and recompute
+    the PRD-set digest using the manifest algorithm in the product-approval
+    instructions. Compare the digest and file count with product-approval.md.
+    Pause for renewed product-owner approval if either differs. This preflight is
+    required even when task status is blocked or all_done.
+    Read context files, work through pending tasks, mark complete as you go.
+    Pause if you hit blockers or need clarification. If implementation feedback
+    changes product intent or acceptance, update and reapprove the PRD set, then
+    reconcile proposal, specs, design, and tasks before continuing. This feedback
+    loop is expected; do not silently expand scope or force a new change merely
+    because implementation has started.

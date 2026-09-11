@@ -1,0 +1,71 @@
+schema: agile-pm
+
+context: |
+  Discover the product, its users, and its current direction from repository
+  documentation, approved product records, active changes, and the implementation.
+  Treat repository-specific instruction files as authoritative constraints for
+  the surfaces they govern. Validate current behavior before relying on summaries.
+  Preserve human judgement and approval points. Treat safety, auditability,
+  interoperability, compatibility, privacy, security, migration, and operational
+  resilience as relevant constraints when the proposed capability touches them.
+  Plan in small end-to-end spirals that produce user or operational feedback.
+  Agile-pm is human-led and iterative: ask focused questions until the vision,
+  desired outcome, boundaries, and current capability increment are understood.
+  Artifact dependencies preserve coherence but do not create irreversible phases;
+  learning may flow back into the PRD set with renewed approval.
+
+rules:
+  product-brief:
+    - Separate known evidence, assumptions, and unknowns.
+    - Compare alternatives, including doing nothing, before recommending work.
+    - Ask the human focused, adaptive questions and confirm the brief represents their intent.
+  prd:
+    - Keep Must scope to the smallest increment that can validate the hypothesis.
+    - Never claim customer evidence or quantitative baselines that are not documented.
+    - Keep detailed requirements in the indexed capability PRDs, not in prd.md.
+    - Develop the hypothesis, outcomes, boundaries, feedback loop, and capability index iteratively with the human.
+  prd-capabilities:
+    - Keep the prd.md index and prd/capabilities/**/*.md files exhaustive and exact.
+    - Use capability-qualified references in the form <change-name>#<capability-path>/FR-001.
+    - Capability PRDs define product intent and priority; OpenSpec specs define normative behavior and test scenarios.
+    - Ask rather than guess when requirement intent, priority, acceptance, dependencies, risks, or exclusions are unclear.
+  product-approval:
+    - Create only after explicit approval of prd.md and every indexed capability PRD by the user.
+  proposal:
+    - Reject stale PRD-set approval before creating or updating the proposal.
+    - Trace every proposed capability to one or more capability-qualified PRD requirement IDs.
+    - Allow skip_specs only when the complete PRD set contains zero Must requirements.
+    - Return product ambiguity to the human and PRD set instead of inventing intent during handoff.
+  specs:
+    - Reject stale PRD-set approval before creating or updating specs.
+    - Trace every requirement to one or more capability-qualified PRD requirement IDs.
+    - Map every Must requirement in every indexed capability PRD to an OpenSpec requirement.
+    - Keep normative behavior and scenarios in specs while preserving the PRD set as product intent.
+  design:
+    - Reject stale PRD-set approval before creating or updating design.md.
+    - Route design discoveries that change product intent or acceptance back through human clarification and PRD-set reapproval.
+  tasks:
+    - Reject stale PRD-set approval before creating or updating tasks.md.
+    - Cover every Must requirement in every indexed capability PRD.
+    - Route task-planning discoveries that change product intent or acceptance back through human clarification and PRD-set reapproval.
+
+operations:
+  apply:
+    guidance:
+      - Preserve the PRD scope and human approval points while implementing.
+      - Reject stale PRD-set approval before implementation, including blocked or all-done task states.
+      - Capture newly discovered product assumptions for review instead of silently expanding scope.
+      - Feed product discoveries back into the PRD set for human clarification and reapproval, reconcile downstream artifacts, then continue the same change when practical.
+  archive:
+    guidance:
+      - For agile-pm changes, every archive guidance entry below is a mandatory completion requirement, not optional advice; stop on missing, conflicting, or inapplicable guidance.
+      - Verify the current PRD-set digest and file count match product-approval.md before syncing or archiving.
+      - Publish an approved agile-pm PRD set byte-for-byte under docs/product/<archive-target>/ and index it for project users.
+      - Treat the archived OpenSpec PRD set as the approval record and the docs/product copy as a read-only published mirror.
+      - Preserve prd.md, every indexed prd/capabilities/**/*.md file, and product-approval.md in the published mirror.
+      - Recompute the deterministic PRD-set digest and file count from the staged mirror and require both to match approval before publication.
+      - Never overwrite a published target or write outside the selected planning home's docs/product/ tree.
+      - Stage publication before moving the change, reject symlinks, preserve relative paths and raw bytes, and remove staging on failure.
+      - If docs/product/README.md is absent, initialize it from openspec/schemas/agile-pm/templates/product-catalog.md; stop if the template is unavailable.
+      - Add a docs/product/README.md catalog row linking the owning PRD, every capability PRD, and approval record; reject duplicate targets.
+      - Consider archive complete only when the archived approval record, published mirror, digest, file count, and catalog agree.

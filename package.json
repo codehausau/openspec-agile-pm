@@ -1,0 +1,43 @@
+{
+  "name": "openspec-agile-pm",
+  "version": "0.1.0",
+  "description": "Approval-gated product discovery and capability PRDs for OpenSpec",
+  "type": "module",
+  "bin": {
+    "openspec-agile-pm": "bin/cli.js"
+  },
+  "files": [
+    "assets/",
+    "bin/",
+    "lib/",
+    "LICENSE",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check bin/cli.js && node --check lib/installer.js"
+  },
+  "keywords": [
+    "openspec",
+    "opencode",
+    "product-management",
+    "prd",
+    "agent-skills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codehausau/openspec-agile-pm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/codehausau/openspec-agile-pm/issues"
+  },
+  "homepage": "https://github.com/codehausau/openspec-agile-pm#readme",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  }
+}
