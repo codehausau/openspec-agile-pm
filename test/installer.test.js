@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -183,4 +184,68 @@ test("client removal preserves modified obsolete adapter files and stops trackin
   );
   assert.equal(manifest.client, "none");
   assert.equal(manifest.files[".opencode/commands/pm-brainstorm.md"], undefined);
+});
+
+test("update migrates owned archive-publication rules while preserving historical product documents", async (t) => {
+  const root = await temporaryProject(t);
+  await install({ cwd: root, client: "opencode", mode: "init" });
+
+  // Model an installed v4 bundle using its original owned config contribution.
+  const oldRule = "Create only after explicit approval of prd.md and every indexed capability PRD by the user.";
+  const oldGuidance = [
+    "Publish an approved agile-pm PRD set byte-for-byte under docs/product/<archive-target>/ and index it for project users.",
+    "Add a docs/product/README.md catalog row linking the owning PRD, every capability PRD, and approval record; reject duplicate targets.",
+  ];
+  const consumerGuidance = "Preserve this consumer archive convention.";
+  const configPath = path.join(root, "openspec", "config.yaml");
+  await writeFile(configPath, YAML.stringify({
+    schema: "agile-pm",
+    context: "Consumer product context.",
+    rules: { "product-approval": [oldRule] },
+    operations: { archive: { guidance: [...oldGuidance, consumerGuidance] } },
+  }));
+
+  const manifestPath = path.join(root, "openspec", ".agile-pm-install.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.config.contextAdded = null;
+  manifest.config.rulesAdded = { "product-approval": [oldRule] };
+  manifest.config.guidanceAdded = { archive: oldGuidance };
+
+  const schemaPath = "openspec/schemas/agile-pm/schema.yaml";
+  const oldSchema = "name: agile-pm\nversion: 4\nartifacts: []\n";
+  await writeFile(path.join(root, schemaPath), oldSchema);
+  manifest.files[schemaPath] = createHash("sha256").update(oldSchema).digest("hex");
+  const masterTemplate = "openspec/schemas/agile-pm/templates/master-prd.md";
+  await rm(path.join(root, masterTemplate));
+  delete manifest.files[masterTemplate];
+  await writeFile(manifestPath, JSON.stringify(manifest));
+
+  const historicalFiles = {
+    "docs/product/README.md": "# Product Documentation\n\nHuman preamble and legacy catalog rows.\n",
+    "docs/product/2026-09-13-first-increment/prd.md": "Approved historical increment.\n",
+    "openspec/changes/archive/2026-09-13-first-increment/product-approval.md": "Original approval record.\n",
+  };
+  for (const [relative, content] of Object.entries(historicalFiles)) {
+    await mkdir(path.dirname(path.join(root, relative)), { recursive: true });
+    await writeFile(path.join(root, relative), content);
+  }
+
+  await install({ cwd: root, mode: "update" });
+  const config = YAML.parse(await readFile(configPath, "utf8"));
+  assert.equal(config.context, "Consumer product context.");
+  assert.ok(config.operations.archive.guidance.includes(consumerGuidance));
+  for (const rule of oldGuidance) assert.ok(!config.operations.archive.guidance.includes(rule));
+  assert.ok(!config.rules["product-approval"].includes(oldRule));
+  assert.ok(config.rules["master-prd"].length > 0);
+  assert.ok(config.rules["product-approval"].some((rule) => rule.includes("immediately")));
+  assert.equal(YAML.parse(await readFile(path.join(root, schemaPath), "utf8")).version, 5);
+  await readFile(path.join(root, masterTemplate));
+  await assert.rejects(readFile(path.join(root, "docs/product/prd.md")), /ENOENT/);
+  for (const [relative, content] of Object.entries(historicalFiles)) {
+    assert.equal(await readFile(path.join(root, relative), "utf8"), content);
+  }
+
+  const once = await readFile(configPath, "utf8");
+  await install({ cwd: root, mode: "update" });
+  assert.equal(await readFile(configPath, "utf8"), once, "migration must be idempotent");
 });

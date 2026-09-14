@@ -4,6 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import YAML from "yaml";
+
 const ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const ASSETS = path.join(ROOT, "assets");
 
@@ -41,5 +43,69 @@ test("OpenCode adapter includes the complementary PM commands and skills", async
       "utf8",
     );
     assert.match(skill, new RegExp(`name: ${name}`));
+  }
+});
+
+test("the client-neutral graph requires a complete master before approval and engineering", async () => {
+  const schemaRoot = path.join(ASSETS, "openspec", "schemas", "agile-pm");
+  const schema = YAML.parse(await readFile(path.join(schemaRoot, "schema.yaml"), "utf8"));
+  const artifacts = new Map(schema.artifacts.map((artifact) => [artifact.id, artifact]));
+  assert.equal(artifacts.size, schema.artifacts.length, "artifact IDs must be unique");
+  assert.equal(schema.version, 5);
+
+  function dependencies(id, visiting = new Set()) {
+    assert.ok(artifacts.has(id), `unknown artifact ${id}`);
+    assert.ok(!visiting.has(id), `dependency cycle at ${id}`);
+    const next = new Set([...visiting, id]);
+    return new Set(artifacts.get(id).requires.flatMap((dependency) => [
+      dependency,
+      ...dependencies(dependency, next),
+    ]));
+  }
+
+  for (const artifact of artifacts.values()) {
+    dependencies(artifact.id);
+    await readFile(path.join(schemaRoot, "templates", artifact.template));
+  }
+  const master = artifacts.get("master-prd");
+  assert.equal(master.generates, "master-prd.md");
+  assert.deepEqual(master.requires, ["prd", "prd-capabilities"]);
+  assert.ok(artifacts.get("product-approval").requires.includes("master-prd"));
+
+  for (const id of ["proposal", "specs", "design", "tasks"]) {
+    assert.ok(dependencies(id).has("product-approval"), `${id} must be approval-gated`);
+    assert.ok(artifacts.get(id).requires.includes("master-prd"), `${id} needs master context`);
+    assert.match(artifacts.get(id).instruction, /Approved master preflight/);
+  }
+  for (const id of schema.apply.requires) {
+    assert.ok(dependencies(id).has("master-prd"), "apply must require the reviewed master");
+  }
+
+  const config = YAML.parse(await readFile(path.join(ASSETS, "config", "config.yaml"), "utf8"));
+  for (const id of Object.keys(config.rules)) assert.ok(artifacts.has(id), `unknown rule target ${id}`);
+});
+
+test("approval and adapter contracts include master publication and historical provenance", async () => {
+  const schemaRoot = path.join(ASSETS, "openspec", "schemas", "agile-pm");
+  const schema = YAML.parse(await readFile(path.join(schemaRoot, "schema.yaml"), "utf8"));
+  const approval = schema.artifacts.find(({ id }) => id === "product-approval").instruction;
+  const template = await readFile(path.join(schemaRoot, "templates", "product-approval.md"), "utf8");
+  assert.match(template, /\*\*Approval Format:\*\* 2/);
+  assert.match(template, /Approved for immediate publication to docs\/product\/prd\.md/);
+  assert.match(approval, /followed by master-prd\.md last/);
+  for (const field of ["Master SHA-256", "Base Master SHA-256"]) {
+    assert.ok(template.includes(`**${field}:**`));
+    assert.ok(approval.includes(field));
+  }
+  assert.match(approval, /rebase the candidate and obtain fresh approval/);
+  assert.match(approval, /restore\s+the previous master and README/);
+  assert.match(approval, /product-history\/<PRD-set-digest>\//);
+  assert.match(approval, /later approved descendant/);
+
+  for (const name of ["pm", "propose", "apply", "sync", "update", "archive"]) {
+    const command = await readFile(path.join(ASSETS, "opencode", "commands", `opsx-${name}.md`), "utf8");
+    assert.match(command, /Approved master preflight/, `${name} must validate publication`);
+    assert.match(command, /master-prd\.md/, `${name} must include the master in approval`);
+    assert.doesNotMatch(command, /Approved for archive-time publication|Published to `docs\/product\/<target-name>/);
   }
 });

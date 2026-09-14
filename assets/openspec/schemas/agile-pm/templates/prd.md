@@ -1,4 +1,7 @@
-# Product Requirements Document: <!-- Product spiral -->
+# Product Increment Requirements: <!-- Product spiral -->
+
+<!-- This file scopes engineering work for one change. The master-prd artifact
+     integrates this increment into the full product PRD before approval. -->
 
 ## Overall Hypothesis
 

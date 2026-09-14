@@ -38,6 +38,9 @@ Implement tasks from an OpenSpec change.
    stop before implementation and direct the user to `/opsx-pm <name>` for renewed
    approval. Do this even if apply will report `blocked` or `all_done`; OpenSpec
    status tracks file existence and cannot establish that approval is current.
+   For graphs containing `master-prd`, include `master-prd.md` last in the manifest
+   and run the Approved master preflight from product-approval instructions,
+   including format 2, publication provenance, and superseded-scope checks.
 
 3. **Get apply instructions**
 

@@ -1,11 +1,12 @@
 ---
-description: "Brainstorm a product idea and create an approval-gated capability PRD set"
+description: "Shape a product increment and approve a cohesive master PRD revision"
 agent: build
 ---
 
 Act as a pragmatic product manager for an OpenSpec change. Develop the product
 thinking with the user before handing the approved PRD set to engineering planning.
-This command creates planning artifacts only and never implements product code.
+This command creates planning artifacts and publishes the approved master PRD;
+it never implements product code.
 
 **Input:** A product idea or an existing change name: $ARGUMENTS
 
@@ -16,7 +17,8 @@ supported OpenSpec command for the rest of the workflow. Before writing in a
 store, run `openspec schemas --json --store <id>` and require that it exposes the
 `agile-pm` schema. Then run `openspec context --json --store <id>`, resolve the
 returned root, and inspect its `openspec/config.yaml`; require the agile-pm human
-elicitation, iterative approval, apply feedback, and archive publication rules.
+elicitation, iterative approval, approval-time master publication, apply feedback,
+and archive history rules.
 If either schema or config contract is missing, stop and explain that the complete
 bundle must be installed there; never fall back to another schema. Every unscoped
 command below is shorthand for the same command with the selected store flag.
@@ -52,10 +54,10 @@ command below is shorthand for the same command with the selected store flag.
    Never create a change directory manually. For an existing change, do not
    scaffold it again.
 5. Run `openspec status --change "<name>" --json`. Create no more than one ready
-   PM review unit (`product-brief`, the combined `prd` plus `prd-capabilities`
-   unit, or `product-approval`) between explicit user review points. The owning
-   `prd.md` and all indexed capability PRDs form one review unit: create both
-   artifacts before asking for approval, but never create `product-approval` in
+   PM review unit (`product-brief`, the combined `prd` plus `prd-capabilities` plus
+   `master-prd` unit, or `product-approval`) between explicit user review points.
+   `prd.md`, all indexed capability PRDs, and `master-prd.md` form one review unit:
+   create all artifacts before asking for approval, but never create `product-approval` in
    the same review step. Obtain authoritative
    instructions with `openspec instructions <artifact-id> --change "<name>" --json`,
    resolve dependency paths against the returned `changeDir`, follow the returned
@@ -66,24 +68,33 @@ command below is shorthand for the same command with the selected store flag.
    user to review it. For a research or park recommendation, stop before the PRD.
    The PRD requires an explicit decision to pursue; if the decision changes,
    update the brief before proceeding.
-7. Create `prd.md` as the owning product document, then follow the
+7. Create `prd.md` as the change-scoped product increment, then follow the
    `prd-capabilities` instructions to create exactly one
    `prd/capabilities/<capability-path>.md` file per index entry. Verify that the
-   index and files match exactly. Show the overall hypothesis, success signals,
+   index and files match exactly. Follow the `master-prd` instructions to prepare
+   the full proposed product revision from the current approved master and this
+   increment. Reconcile legacy snapshots with the human when no master exists.
+   Show the baseline diff, full resulting master, overall hypothesis, success signals,
    and every capability's Must requirements, acceptance outcomes, and open
-   assumptions. Ask the user to approve or refine this exact complete PRD set.
-   Explain that approval also authorizes archive-time publication of the set as
-   project documentation under `docs/product/<archive-target>/`.
-   On a refinement request, update the owning document and capability documents
+   assumptions. Compute the PRD-set digest using product-approval instructions and
+   retain it with the review summary so later file edits cannot be mistaken for
+   reviewed bytes. Ask the user to approve or refine this exact complete PRD set.
+   Explain that approval immediately publishes the exact reviewed `master-prd.md`
+   to `<planningHome.root>/docs/product/prd.md`, before implementation; delivery
+   status remains explicit and separate from approved intent.
+   On a refinement request, update the increment, capability documents, and master
    together instead of advancing. Do not infer approval from file existence or
    prior discovery answers.
 8. Create `product-approval.md` only after explicit approval, following its
-   instructions. Validate the exact index/file match, build the deterministic
-   manifest with `prd.md` first and capability paths in bytewise lexical order,
-   and record its current PRD-set digest and file count. Do not create proposal,
+   instructions, including the locked publication transaction and stale-baseline
+   check. Validate the exact index/file match, build the deterministic manifest
+   with `prd.md` first, capability paths in bytewise lexical order, and `master-prd.md`
+   last. Record format 2, PRD-set digest/count, master hash, and baseline hash.
+   Publish the exact approved master and verify it before handoff; never silently
+   rebase or rewrite the candidate after approval. Do not create proposal,
    specs, design, tasks, or code in this PM workflow.
-9. When product approval exists and its digest and file count match the complete
-   PRD set, report the PM
+9. When the Approved master preflight passes, including the complete PRD-set digest,
+   file count, and verified publication, report the PM
    handoff as complete. Tell the user to
    run `/opsx-propose <name>` and choose to continue the existing change; OpenSpec
    will then generate the engineering proposal, specs, design, and tasks from the
@@ -92,11 +103,13 @@ command below is shorthand for the same command with the selected store flag.
 For an existing change, first inspect its actual artifact files and conversation
 context. If a review is pending, review or revise the existing artifact instead
 of blindly creating the next ready one. If the next ready artifact is `proposal`,
-validate the index/file match and verify the approval digest and file count; PM
-planning is complete only when both match. Any edit, addition, removal, rename, or
-index change in the PRD set invalidates product approval: remove
-`product-approval.md` before changing `prd.md` or a capability PRD, then require a
-fresh approval artifact. This applies even when OpenSpec status still reports the
+run the Approved master preflight; PM planning is complete only when approval and
+publication are verified. Any edit, addition, removal, rename, or index change in
+the PRD set, including `master-prd.md`, invalidates product approval: first preserve
+the previous approved bytes and record in `product-history/<PRD-set-digest>/` as
+instructed by product-approval, then remove the working `product-approval.md`
+before editing and require fresh approval. Keep the last published master intact
+while drafting or awaiting approval. This applies even when OpenSpec status reports the
 approval artifact as done. Leave existing engineering artifacts unchanged until
 approval, then use `/opsx-update` to make them coherent. Capability PRD references
 use `<change-name>#<capability-path>/FR-001` or the corresponding NFR form.

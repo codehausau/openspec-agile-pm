@@ -51,6 +51,9 @@ Revise a change's existing planning artifacts and keep them coherent. Never edit
    recomputed deterministic manifest digest and file count with the approval file.
    A stale approval blocks edits to proposal, specs, design, and tasks; route to
    `/opsx-pm <name>` for renewed approval instead.
+   For graphs containing `master-prd`, include `master-prd.md` last in the manifest
+   and run the Approved master preflight from product-approval instructions,
+   including format 2, publication provenance, and superseded-scope checks.
 
 3. **Understand the request**
    - If the user asked for a specific revision ("the design now uses X"), that is the starting edit.
@@ -61,11 +64,12 @@ Revise a change's existing planning artifacts and keep them coherent. Never edit
    - Apply the requested edit. Then check every other existing artifact against it - in ANY direction: an edit to a later artifact may require revising an earlier one, not only the other way around. Build order is a useful reading order, not a constraint on which artifacts may be revised.
    - Note everything that is now inconsistent, missing, or contradictory.
    - Revise only files that already exist (`existingOutputPaths`). Do NOT create artifacts that don't exist yet, and do NOT invent new files under a glob artifact - note them and point the user to `/opsx-continue` to create them.
-   - If the requested revision changes `prd.md` or any indexed capability PRD,
+   - If the requested revision changes `prd.md`, any indexed capability PRD, or `master-prd.md`,
      treat additions, removals, renames, and index edits as PRD-set changes too.
      Do not edit them in this generic update workflow. Route to `/opsx-pm <name>`,
-     which removes approval before the first PRD-set edit, can reconcile concrete
-     files under the capability glob, and obtains fresh approval. Do not revise
+     which preserves the previous approved set in product-history before removing
+     working approval, reconciles the increment and full master, and publishes
+     only after fresh approval. Do not edit `docs/product/prd.md` directly. Do not revise
      engineering artifacts until that approval exists.
    - If the change is already coherent, say so and make no edits.
 

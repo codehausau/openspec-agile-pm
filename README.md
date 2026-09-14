@@ -1,8 +1,8 @@
 # openspec-agile-pm
 
-An approval-gated OpenSpec workflow that adds adaptive product discovery, an
-owning PRD, capability PRDs, deterministic product approval, requirement
-traceability, and archive-time product documentation before implementation.
+An approval-gated OpenSpec workflow that adds adaptive product discovery,
+change-scoped capability PRDs, one cohesive living master PRD, deterministic
+product approval, and requirement traceability before implementation.
 
 The package is client-neutral at its core. An optional OpenCode adapter adds the
 workflow commands and NanoPM-derived discovery skills.
@@ -124,15 +124,116 @@ Restart OpenCode after installing or updating its adapter.
 brainstorm/discovery
   -> product brief
   -> owning PRD + capability PRDs
-  -> explicit product approval
+  -> full proposed master PRD revision + baseline diff
+  -> explicit product approval and immediate master publication
   -> proposal + specs + design
   -> tasks
   -> apply
-  -> archive and publish approved product documentation
+  -> archive the change and its approval history
 ```
 
 The optional `pm-*` skills write only local research under ignored `.nanopm/`.
 `/opsx-pm` is the authoritative path into the approval-gated OpenSpec workflow.
+
+### One Enduring Product PRD
+
+`docs/product/prd.md` is the single, self-contained document for current approved
+product intent. It includes the product vision, users, outcomes, boundaries, and
+detailed requirements grouped by capability. New increments revise this document:
+they integrate additions, replace changed requirements, retire removed requirements,
+and reconcile exclusions and dependencies while preserving unaffected content.
+
+```text
+docs/product/
+  README.md                         # Stable link to the master
+  prd.md                            # Current approved full product document
+openspec/changes/<change>/
+  prd.md                            # This increment's engineering scope
+  prd/capabilities/**/*.md           # This increment's detailed requirements
+  master-prd.md                      # Full proposed/approved product revision
+  product-approval.md                # Approval of both increment and master
+  product-history/<prd-set-digest>/  # Prior approvals revised within this change
+openspec/changes/archive/<target>/   # The entire change after archive
+```
+
+The agent prepares `master-prd.md` from the current master and the proposed
+increment **before approval**, then presents the full result and its baseline diff.
+Approval publishes that exact file's bytes to `docs/product/prd.md` immediately;
+archive preserves history and does not publish another product copy. Requirement
+identities and historical approval records provide traceability without making
+readers assemble a product description from separate increments.
+
+The master describes **approved intent**, not necessarily shipped functionality.
+New or changed requirements are marked delivery pending; availability claims need
+evidence. Unaffected requirements carried forward in the master are not new tasks
+for the increment. The master is revised through approval, not edited directly.
+
+Schema version 5 uses approval format 2. Its deterministic PRD-set manifest orders
+`prd.md` first, indexed capability files in bytewise lexical path order next, and
+`master-prd.md` last. The approval also records raw-byte SHA-256 hashes for the
+master and its baseline (`absent` for first publication). A changed baseline requires
+rebasing and renewed human review, preventing one pending change from overwriting
+another approved increment. Publication is serialized with a planning-home lock,
+staged, verified, and rolled back on failure. Later approved descendant revisions
+are valid during archive; archiving an older change never restores its older master.
+
+These are client-neutral schema and agent workflow contracts, including explicit
+filesystem actions at approval. The OpenCode adapter follows the same contract.
+OpenSpec's native file-existence status alone does not enforce approval, publication,
+or semantic reconciliation; agents must execute the prescribed preflights.
+
+### Migrating Existing Installations And PRDs
+
+1. Install the updated package version, then update the consuming project's bundle:
+
+   ```bash
+   npx openspec-agile-pm update --dry-run
+   npx openspec-agile-pm update
+   npx openspec-agile-pm doctor
+   ```
+
+   Managed configuration contributions are replaced during update; user-owned
+   rules and modified files are preserved or reported as conflicts. Review any
+   custom repository instructions that still require archive-time PRD copies and
+   align them with approval-time master publication. The installer does not edit
+   repository instruction files or existing product documentation.
+
+2. Quit and restart OpenCode after updating its adapter.
+3. For an active change, run `/opsx-pm <change-name>`. Older approvals must be
+   preserved in `product-history/`, then replaced by explicit format-2 approval of
+   the increment and full master revision. A legacy digest alone does not approve
+   consolidation or immediate publication.
+4. If only archived changes remain, start a new `/opsx-pm` consolidation change.
+   Review the relevant historical approved PRDs together, resolve contradictions
+   with the product owner, and approve the resulting master. Do not assume the
+   latest increment contains the whole product. A documentation-only consolidation
+   can use `skip_specs: true` when its change-scoped PRDs contain zero Must
+   requirements; existing Must requirements in the master remain product context.
+
+Existing `docs/product/<archive-target>/` directories and catalog rows remain
+historical records. The first master approval adds a stable master link to the
+README while preserving those records. Drafting, rejection, or withdrawal of an
+unapproved revision leaves the last approved master intact. Reversing published
+intent requires a new reviewed revision of the current master.
+
+### Workflow Smoke Test
+
+In a disposable consuming project with the updated bundle, use `/opsx-pm` to approve
+an initial product increment. Before `/opsx-apply` or archive, verify that
+`docs/product/prd.md` exists and is byte-identical to that change's `master-prd.md`:
+
+```bash
+CHANGE=your-change-name
+cmp docs/product/prd.md "openspec/changes/$CHANGE/master-prd.md"
+```
+
+Approve another increment that adds a capability and modifies an existing one.
+Review that the master retains unaffected requirements, replaces old wording,
+and reconciles any conflicting exclusions. Draft two changes from the same baseline
+and approve one: the other must require rebase and review before publication.
+Archive the earlier change and confirm it does not overwrite the newer master or
+create a new dated product directory. For stores, run filesystem checks at the
+resolved planning-home root.
 
 ## Development
 

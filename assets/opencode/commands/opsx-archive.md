@@ -71,9 +71,14 @@ Archive a completed change in the experimental workflow.
    instructions and concrete PRD-set paths from `artifactPaths`, verify the exact
    index/file match, and compare the recomputed deterministic manifest digest and
    file count with `product-approval.md`. Stop if approval is missing or stale.
-   Also require the approval record to authorize archive-time publication under
-   `docs/product/`. If an older approval lacks that authorization, stop and use
-   `/opsx-pm <name>` to obtain it explicitly before archive.
+   For `agile-pm`, require the `master-prd` artifact and run the Approved master
+   preflight from the product-approval instructions: validate format 2, include
+   `master-prd.md` last in the manifest, and verify approved publication provenance.
+   A current master that is a valid later approved descendant is allowed; never
+   overwrite it with the revision being archived. If an older change lacks the
+   master or format-2 approval, stop and use `/opsx-pm <name>` to reconcile the
+   complete product and obtain explicit approval before archive. Archive cannot
+   grant publication authorization or synthesize an unreviewed master.
    This is a workflow gate, not optional archive guidance, and cannot be overridden
    by confirmation merely because status reports the approval file as done.
 
@@ -88,9 +93,8 @@ Archive a completed change in the experimental workflow.
    of the selected planning root, require `changeRoot` to be the selected change,
    and reject symlinks in any existing source or destination path component.
    Fail if `<planningHome.changesDir>/archive/<target-name>` exists.
-   For an approved capability-PRD workflow, also fail if
-   `<planningHome.root>/docs/product/<target-name>` exists. Never overwrite an
-   archive or previously published product document set.
+   Never overwrite an archive. Existing dated product snapshots are historical;
+   archive does not create, overwrite, or otherwise modify them.
 
    **If any artifacts are neither `done` nor `skipped`** (skipped artifacts satisfy the requirement - the change declares skip_specs):
    - Display warning listing incomplete artifacts
@@ -151,38 +155,22 @@ Archive a completed change in the experimental workflow.
 
    If the sync failed, or any capability does not match, report what differs and stop — do not archive. Nothing has moved and `changeRoot` is intact, so the user can fix the mismatch or re-run the sync and start the archive again.
 
-5. **Stage approved product documentation**
+5. **Verify approved product history**
 
-   When the graph contains `prd`, `prd-capabilities`, and `product-approval`,
-   publication is part of archive completion. Use only the selected planning home:
-   the publication root is `<planningHome.root>/docs/product/`, including when the
-   planning home is a store. Never publish into an unrelated checkout.
+   For `agile-pm`, publication already happened at approval. Before moving
+   `changeRoot`, repeat the Approved master preflight using the current published
+   master in the selected planning home. Capture a raw-byte manifest of `prd.md`,
+   indexed capability PRDs, `master-prd.md`, `product-approval.md`, and all
+   `product-history/` records. Reject symlinks and paths escaping the change root.
+   Validate each historical snapshot with its recorded approval format (legacy
+   snapshots retain the old manifest algorithm). Stop on missing or invalid evidence.
 
-   Before moving `changeRoot`:
+   Do not stage product publication, create a dated docs/product directory, append
+   a catalog row, or change the published master. Incomplete tasks or skipped spec
+   sync remain archive warnings, never evidence of deployed functionality.
+   Workflows without master-PRD publication skip this product-history step.
 
-   - Ensure `docs/product/README.md` contains the product-documentation explanation
-     and catalog table used by this project. Preserve its human-authored preamble.
-     If it is absent, initialize it from the agile-pm bundle's
-     `templates/product-catalog.md`; stop if that template is unavailable.
-   - Create a uniquely named staging directory inside `docs/product/`; it must not
-     be the final target path and must be removed on failure.
-   - Copy `prd.md`, every indexed `prd/capabilities/**/*.md` file with its relative
-     path preserved, and `product-approval.md` from `changeRoot` into staging.
-     Copy raw bytes without reformatting, rewriting links, or adding frontmatter.
-   - Reject symlinks and any source or destination that resolves outside the
-     selected change root, staging directory, or product documentation root.
-   - Revalidate the staged index/file match and compute its PRD-set digest and file
-     count with the approved manifest algorithm. Both must match
-     `product-approval.md`, and every staged PRD-set file must be byte-identical to
-     its source. Stop and remove staging if any check fails.
-   - Prepare one catalog row for `<target-name>` linking to the owning PRD, every
-      capability PRD, and `product-approval.md`. Include the approval digest, file
-      count, and whether archive warnings were accepted. Reject a duplicate target
-      row. Keep rows ordered by archive target.
-
-   Non-capability workflows skip this publication step.
-
-6. **Perform the archive and publish**
+6. **Perform the archive**
 
    Create an `archive` directory under `planningHome.changesDir` if it doesn't exist:
    ```bash
@@ -200,16 +188,14 @@ Archive a completed change in the experimental workflow.
    `mv` when any containment, identity, or symlink check is inconclusive. Do not
    rely on string-prefix path checks.
 
-   For a staged capability-PRD publication, then move the verified staging
-   directory to `docs/product/<target-name>` and install the prepared catalog row.
-   Verify every catalog link resolves inside that published directory. Archive is
-   complete only when the archived change, published snapshot, and catalog agree.
-
-   If publication or catalog installation fails after moving the change, remove
-   only the publication files created by this invocation, restore the previous
-   catalog exactly, and move the archived directory back to its original
-   `changeRoot`. Report the failure and note if main specs had already been synced.
-   Never leave a successful archive summary with a missing or partial publication.
+   For `agile-pm`, verify the archived product files against the captured manifest,
+   recompute the PRD-set digest/count, and repeat the Approved master preflight with
+   the approval record now in the archive. Preserve every historical snapshot.
+   If verification fails, move the archived directory back to its original
+   `changeRoot` when that path is still absent; otherwise stop and report the
+   recovery conflict without overwriting anything. Report the failure and whether
+   main specs had already been synced. Never restore an older master as part of
+   archive rollback or report success with missing approval evidence.
 
 7. **Display summary**
 
@@ -218,7 +204,7 @@ Archive a completed change in the experimental workflow.
    - Schema that was used
    - Archive location
    - Spec sync status (synced / sync skipped / no delta specs)
-   - Product documentation path and catalog status, or why publication did not apply
+   - Master PRD path and verified approval history, or why this workflow has no master
    - Note about any warnings (incomplete artifacts/tasks)
 
 **Output On Success**
@@ -230,7 +216,7 @@ Archive a completed change in the experimental workflow.
 **Schema:** <schema-name>
 **Archived to:** the archive path derived from `planningHome.changesDir`/<target-name>/
 **Specs:** ✓ Synced to main specs
-**Product docs:** Published to `docs/product/<target-name>/` and indexed
+**Product docs:** `docs/product/prd.md` (published at approval; history verified)
 
 All artifacts complete. All tasks complete.
 ```
@@ -244,7 +230,7 @@ All artifacts complete. All tasks complete.
 **Schema:** <schema-name>
 **Archived to:** the archive path derived from `planningHome.changesDir`/<target-name>/
 **Specs:** No delta specs
-**Product docs:** Published to `docs/product/<target-name>/` and indexed
+**Product docs:** `docs/product/prd.md` (published at approval; history verified)
 
 All artifacts complete. All tasks complete.
 ```
@@ -258,7 +244,7 @@ All artifacts complete. All tasks complete.
 **Schema:** <schema-name>
 **Archived to:** the archive path derived from `planningHome.changesDir`/<target-name>/
 **Specs:** Sync skipped (user chose to skip)
-**Product docs:** Published to `docs/product/<target-name>/` and indexed with archive warnings
+**Product docs:** `docs/product/prd.md` (published at approval; history verified)
 
 **Warnings:**
 - Archived with 2 incomplete artifacts
@@ -288,8 +274,8 @@ Target archive directory already exists.
 - Announce the selected change; prompt for selection when it is ambiguous
 - Use artifact graph (openspec status --json) for completion checking
 - Don't block archive on warnings - just inform and confirm
-- For a capability-PRD workflow, warnings do not waive publication; record them in
-  the catalog status so approved intent is not mistaken for proof of delivery
+- For a master-PRD workflow, warnings do not waive approval or provenance checks;
+  report them in the archive summary without changing the approved master
 - Preserve .openspec.yaml when moving to archive (it moves with the directory)
 - Show clear summary of what happened
 - If sync is requested, run the `/opsx-sync` workflow inline (agent-driven)
@@ -301,5 +287,5 @@ Target archive directory already exists.
 - Existing CLI checks, resolved paths, prompts, and command contracts are unchanged
 - Artifact rules constrain only the specs being written and are never operation guidance
 - Never copy runtime context, operation guidance, or artifact-rule text verbatim into output files
-- Publish only byte-identical, digest-valid approved PRD sets. Never edit an
-  existing `docs/product/<target-name>/` snapshot or generated catalog row in place
+- Archive preserves approved history; it never republishes a master or creates
+  dated product copies. Preserve legacy snapshots and catalog rows.

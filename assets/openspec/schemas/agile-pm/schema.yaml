@@ -1,6 +1,6 @@
 name: agile-pm
-version: 4
-description: Lightweight product discovery and capability-based PRDs before spec-driven delivery
+version: 5
+description: Iterative product discovery, approval-time master PRD publication, and capability-based delivery
 artifacts:
   - id: product-brief
     generates: product-brief.md
@@ -9,7 +9,9 @@ artifacts:
     instruction: |
       Act as a pragmatic product manager and turn the initial idea into a concise
       product brief. Ground it in repository evidence and existing product
-      documents. Clearly separate facts from assumptions; never invent customer
+      documents, starting with <planningHome.root>/docs/product/prd.md when present.
+      The master describes current approved intent, not proof of delivery. Clearly
+      separate facts from assumptions; never invent customer
       research, demand, metrics, or commitments.
 
       Begin with a lightweight conversation about the human's vision or the thing
@@ -35,16 +37,19 @@ artifacts:
 
   - id: prd
     generates: prd.md
-    description: Owning product document and capability PRD index for the selected spiral
+    description: Change-scoped product increment and capability PRD index
     template: prd.md
     instruction: |
-      Create the owning lean PRD from the approved product brief. Define the
+      Create the change-scoped lean PRD from the approved product brief and current
+      master at <planningHome.root>/docs/product/prd.md, if present. Define the
       overall hypothesis, outcomes, smallest testable increment, feedback loop,
       and product boundaries. Keep detailed requirements out of this file.
       Write in clear product language for project users and stakeholders. This
-      approved PRD set will be published as durable project documentation when
-      the change is archived, so exclude secrets, transient internal notes, and
-      implementation detail that does not help readers understand product intent.
+      increment is an engineering input; master-prd will integrate it into the full
+      product document before approval. Exclude secrets, transient internal notes,
+      and implementation detail that does not help readers understand product intent.
+      Include only capabilities affected by this increment in the index; do not
+      turn requirements carried forward in the master into new implementation work.
 
       Create this artifact only when the product brief recommends pursue and the
       user has explicitly agreed to proceed. For research or park, stop and leave
@@ -114,45 +119,174 @@ artifacts:
     requires:
       - prd
 
+  - id: master-prd
+    generates: master-prd.md
+    description: Complete proposed revision of the single enduring product PRD
+    template: master-prd.md
+    instruction: |
+      Prepare the full proposed product document BEFORE requesting product approval.
+      Resolve planningHome.root from the OpenSpec instruction/status response and
+      use <planningHome.root>/docs/product/prd.md as the sole current master, including
+      for stores. Never use an unrelated checkout's product document.
+
+      When a master exists, verify its approved provenance using the Approved master
+      preflight in the product-approval instructions. Start from its entire current
+      content and record SHA-256 of its raw bytes in Base Master SHA-256. Record the
+      exact selected change name in Revision Change. Do not edit the published master
+      while drafting. If no master exists, use Base Master SHA-256: absent.
+
+      If dated docs/product/<archive-target>/ snapshots or archived approved PRDs
+      exist without a master, this is a migration, not a blank product. Read all
+      relevant approved records, identify superseded or conflicting requirements,
+      and reconcile them with the human. List source records and resolved decisions
+      in the revision summary. Never assume the newest increment describes the whole
+      product or concatenate snapshots. Existing snapshots and catalog rows remain
+      historical records and must not be edited or deleted.
+
+      Integrate the change-scoped prd.md and capability PRDs into one self-contained
+      master-prd.md. Include product vision, users, evidence, outcomes, boundaries,
+      detailed requirements grouped by capability, product acceptance outcomes,
+      dependencies, exclusions, and open decisions. Readers must not need to assemble
+      separate change PRDs to understand the current product. Use internal anchors
+      for capability navigation; links to history are supporting provenance only.
+
+      Reconcile meaning, not just text: add new capabilities, replace modified
+      requirement wording, remove retired requirements from active scope, and update
+      contradictory exclusions, outcomes, dependencies, and acceptance criteria.
+      Preserve unaffected requirements and their priorities. Explain removals and
+      replacements in the revision summary, including migration implications.
+      Carry forward existing capability-qualified requirement identities unchanged;
+      cite new or revised requirements with this change's qualified IDs and record
+      which previous IDs they supersede. Never renumber unrelated requirements.
+      Consolidation must not introduce product scope absent from approved baseline
+      content or the reviewed increment; resolve ambiguity with the human.
+
+      Distinguish approved intent from delivery. Mark new or changed requirements
+      Approved / delivery pending (conditional on this draft's approval); carry
+      forward delivery evidence only when verified. Unknown availability stays
+      unknown. Archive or a checked task alone is not proof of deployed behavior.
+      Status-only corrections also require a reviewed revision; archive never edits
+      the approved master. Candidate future ideas remain explicitly unapproved.
+
+      Show a meaningful diff against the baseline AND the complete resulting master,
+      alongside the change-scoped PRDs, before asking for approval. Compute the
+      complete PRD-set digest using product-approval instructions and retain it with
+      the review summary; approval applies to those reviewed bytes. If the published
+      master changes before approval, rebase this draft on the new approved master,
+      preserve unrelated changes, resolve conflicts with the human, and repeat review.
+      Never silently change Base Master SHA-256 to bypass a stale baseline.
+    requires:
+      - prd
+      - prd-capabilities
+
   - id: product-approval
     generates: product-approval.md
-    description: Durable product-owner approval of the complete PRD set
+    description: Approve the increment and exact master revision, then publish the master
     template: product-approval.md
     instruction: |
       This is a human approval gate, not a document-generation exercise. Present
       prd.md hypothesis, boundaries, and feedback loop plus every capability PRD's
       Must requirements, acceptance outcomes, assumptions, and open decisions.
       Create product-approval.md only after the user explicitly approves this
-      exact complete PRD set for engineering planning. Silence, previous discovery
+      exact complete PRD set, including master-prd.md and its baseline diff, for
+      engineering planning and immediate master publication. Silence, previous discovery
       answers, or a request to revise do not count.
 
-      Tell the approver that a byte-for-byte copy of the approved PRD set will be
-      published under docs/product/<archive-target>/ when the change is archived.
-      Approval therefore covers both engineering planning and that documentation
-      publication. Record the publication authorization in product-approval.md.
-      Revise the PRD set first if it is not suitable for project users.
+      Tell the approver that the exact reviewed master-prd.md will become
+      <planningHome.root>/docs/product/prd.md immediately upon approval, before
+      implementation. It represents approved intent, including pending delivery.
+      Record Approval Format: 2 and the immediate publication authorization using
+      the template. Revise the draft first if it is not suitable for project users.
 
       Before approval, verify that prd.md's index contains every and only Markdown
       file under prd/capabilities/, with unique lowercase kebab-case paths. Compute
       the deterministic PRD-set SHA-256 as follows:
       1. Order paths as prd.md first, followed by every indexed capability file in
-         bytewise lexical path order.
+         bytewise lexical path order, followed by master-prd.md last.
       2. SHA-256 each file's raw bytes and write one UTF-8 manifest line per file
          as `<lowercase-file-digest><two spaces><relative-path><LF>`.
       3. SHA-256 the exact manifest bytes and record that lowercase 64-hex digest
          plus the manifest file count in product-approval.md.
+      Record Master SHA-256 as SHA-256 of master-prd.md's raw bytes, and Base Master
+      SHA-256 equal to that field in master-prd.md (a lowercase 64-hex digest or
+      absent). The master is part of the PRD-set digest, not an unapproved rendering.
       Any content, index, path, addition, removal, or rename changes this digest
-      and invalidates approval. If the user requests changes, remove any existing
-      approval before editing the PRD set and ask again afterward. Never record a
-      rejected, research, or park decision as an approval file.
+      and invalidates approval. Never record a rejected, research, or park decision
+      as an approval file. Legacy approvals without format 2 do not authorize master
+      publication: prepare and review the consolidated master and obtain new approval.
+
+      Publication transaction (required for approval completion):
+      - Use only the resolved planning home and change root. Reject symlinks in
+        source/destination path components and paths escaping their respective roots.
+        Create docs/product/ if absent after validating its parent paths. Before any
+        write, verify that the explicit approval still covers the current source bytes
+        and that the README template is available if initialization is needed.
+      - Serialize product publication in this planning home using an exclusive
+        docs/product/.publication-lock directory (atomic creation). If it already
+        exists, stop; never remove another invocation's lock. After a crash, inspect
+        the recorded approval and current master before explicitly recovering it.
+      - Under the lock, re-read the approved source files and revalidate all hashes.
+        Require the PRD-set digest to equal the digest retained at human review,
+        not merely a digest recomputed after an unnoticed edit. Re-review if it differs.
+        Hash the current docs/product/prd.md or use absent if it does not exist.
+        It must equal Base Master SHA-256. If it differs, stop without overwriting,
+        rebase the candidate and obtain fresh approval. If it already equals Master
+        SHA-256 and matches this exact approval, treat publication as an idempotent
+        retry; verify provenance and repair only missing publication bookkeeping.
+      - Preserve the existing master and README bytes for rollback. Stage a raw-byte
+        copy of master-prd.md inside docs/product/ and verify its hash matches Master
+        SHA-256. Do not reformat, rewrite links, or synthesize content after approval.
+      - Create product-approval.md from the reviewed hashes and explicit human
+        approval. Atomically rename the staged master to docs/product/prd.md. Create
+        docs/product/README.md from templates/product-catalog.md if absent; otherwise
+        add a stable link to prd.md and an explanation that dated sets are historical,
+        preserving human-authored content and all existing catalog rows.
+      - Verify the installed master's bytes, approval digest, file count, and README
+        link. Only then report approval and PM handoff complete. On failure restore
+        the previous master and README, remove only files/staging created by this
+        attempt, and report approval incomplete. Release only this invocation's lock
+        in success or failure. An interrupted attempt must be reconciled before any
+        engineering work; file existence alone never proves publication succeeded.
+
+      Approved master preflight (required for drafting from an existing master,
+      engineering planning, apply, sync, and archive):
+      - Stop while docs/product/.publication-lock exists, except inside the owning
+        publication transaction. Require docs/product/README.md to link to prd.md
+        and that link to resolve; interrupted bookkeeping needs publication recovery.
+      - For a selected change, validate format 2, immediate publication authorization,
+        the exact index/file match, PRD-set digest/count including master-prd.md,
+        Master SHA-256, and agreement of both Base Master SHA-256 fields.
+      - Require docs/product/prd.md to exist and be byte-identical to a master-prd.md
+        with a valid format-2 approval record in the selected planning home's active
+        changes, archives, or product-history snapshots. Validate that source's full
+        PRD set too. Never treat an arbitrary edited master as an approved baseline.
+      - If the current master differs from the selected change's approved revision,
+        follow Base Master SHA-256 through those validated records to the selected
+        revision. Reject missing links or cycles. A later approved descendant is
+        legitimate; never republish an older master during planning or archive.
+        Before engineering/apply/sync, compare this increment against current intent;
+        if a later revision supersedes its scope, pause affected work and reconcile
+        it through human review/reapproval. Archive may retain superseded history.
+      - A missing publication, invalid provenance, or legacy approval blocks the
+        operation; return to product approval for explicit migration or recovery.
+        Read-only baseline validation has no selected-change requirement.
 
       Approval is a durable snapshot for coherent engineering work, not an
       irreversible waterfall phase. If later learning changes product intent,
-      remove stale approval before revising the PRD set, obtain explicit approval
-      of the new digest, and reconcile affected downstream artifacts.
+      before editing any PRD-set file preserve the previous approved PRD set and
+      product-approval.md byte-for-byte under the selected change's
+      product-history/<PRD-set-digest>/ (outside prd/capabilities/). Verify the snapshot
+      digest; reuse an existing identical snapshot and reject conflicting contents.
+      Preserve a valid legacy set with its original manifest algorithm when migrating.
+      Then remove the working approval, revise the increment and master together,
+      obtain explicit approval of the new digest, and reconcile downstream artifacts.
+      Leave the last published master and historical approval records intact during
+      drafting or rejection. A withdrawal or rollback is a new approved revision of
+      the current master, never a silent restoration over later approved work.
     requires:
       - prd
       - prd-capabilities
+      - master-prd
 
   - id: proposal
     generates: proposal.md
@@ -167,6 +301,9 @@ artifacts:
       intent into OpenSpec capability work without copying the PRD wholesale.
       Product capability paths and spec capability paths may differ.
 
+      Run the Approved master preflight in the product-approval instructions, including
+      published provenance and superseded-scope checks. The master is product context;
+      only the change-scoped PRDs define this increment's engineering work.
       Before writing, validate the exact index/file match and recompute the PRD-set
       digest using the manifest algorithm in the product-approval instructions.
       Compare the digest and file count with product-approval.md. If either differs,
@@ -191,9 +328,11 @@ artifacts:
       `skip_specs: true`. Use `skip_specs: true` only when no spec-level
       behavior changes (pure refactor, tooling, docs) - specs describe
       behavior, so if behavior does not change, no spec should change either.
-      The complete PRD set must also contain zero Must requirements; otherwise
-      its mandatory OpenSpec traceability requires specs. Do not invent a
-      requirement just to satisfy validation.
+      The change-scoped prd.md and indexed capability PRDs must also contain zero
+      Must requirements; otherwise their mandatory OpenSpec traceability requires
+      specs. Unaffected Must requirements carried forward in master-prd.md do not
+      block a documentation-only consolidation. Do not invent a requirement just
+      to satisfy validation.
 
       Keep it concise (1-2 pages). Focus on the "why" not the "how" -
       implementation details belong in design.md.
@@ -215,6 +354,7 @@ artifacts:
       - product-approval
       - prd
       - prd-capabilities
+      - master-prd
 
   - id: specs
     generates: "specs/**/*.md"
@@ -223,6 +363,9 @@ artifacts:
     instruction: |
       Create specification files that define WHAT the system should do.
 
+      Run the Approved master preflight in the product-approval instructions, including
+      published provenance and superseded-scope checks. Do not create delta specs for
+      unaffected requirements merely carried forward in the master.
       Before writing, validate the exact PRD index/file match and recompute the
       PRD-set digest using the manifest algorithm in the product-approval
       instructions. Compare the digest and file count with product-approval.md.
@@ -332,6 +475,7 @@ artifacts:
       - product-approval
       - prd
       - prd-capabilities
+      - master-prd
 
   - id: design
     generates: design.md
@@ -340,6 +484,8 @@ artifacts:
     instruction: |
       Create the design document that explains HOW to implement the change.
 
+      Run the Approved master preflight in the product-approval instructions, including
+      published provenance and superseded-scope checks.
       Before writing, validate the exact PRD index/file match and recompute the
       PRD-set digest using the manifest algorithm in the product-approval
       instructions. Compare the digest and file count with product-approval.md.
@@ -373,13 +519,15 @@ artifacts:
 
       If design work exposes a product decision or changes product intent,
       acceptance, or priority, stop only the affected work. Return to the human,
-      remove stale approval, revise and reapprove the PRD set, then reconcile the
+      preserve the prior approved set using the product-approval history procedure,
+      remove working approval, revise and reapprove the PRD set, then reconcile the
       affected proposal, specs, design, and tasks before continuing.
     requires:
       - proposal
       - product-approval
       - prd
       - prd-capabilities
+      - master-prd
 
   - id: tasks
     generates: tasks.md
@@ -388,6 +536,9 @@ artifacts:
     instruction: |
       Create the task list that breaks down the implementation work.
 
+      Run the Approved master preflight in the product-approval instructions, including
+      published provenance and superseded-scope checks. Scope tasks to this increment,
+      not every requirement carried forward in the master.
       Before writing, validate the exact PRD index/file match and recompute the
       PRD-set digest using the manifest algorithm in the product-approval
       instructions. Compare the digest and file count with product-approval.md.
@@ -435,8 +586,9 @@ artifacts:
       spirals into current implementation work.
 
       If task planning reveals missing product intent or a changed acceptance
-      outcome, stop only the affected planning. Return to the human, remove stale
-      approval, revise and reapprove the PRD set, then reconcile affected
+      outcome, stop only the affected planning. Return to the human, preserve the
+      previous approved set using the product-approval history procedure, remove
+      working approval, revise and reapprove the PRD set, then reconcile affected
       engineering artifacts before completing the implementation handoff.
     requires:
       - specs
@@ -444,11 +596,14 @@ artifacts:
       - product-approval
       - prd
       - prd-capabilities
+      - master-prd
 
 apply:
   requires: [ tasks ]
   tracks: tasks.md
   instruction: |
+    Run the Approved master preflight in the product-approval instructions, including
+    published provenance and superseded-scope checks.
     Before implementation, validate the exact PRD index/file match and recompute
     the PRD-set digest using the manifest algorithm in the product-approval
     instructions. Compare the digest and file count with product-approval.md.
