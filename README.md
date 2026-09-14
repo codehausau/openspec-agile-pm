@@ -7,6 +7,14 @@ product approval, and requirement traceability before implementation.
 The package is client-neutral at its core. An optional OpenCode adapter adds the
 workflow commands and NanoPM-derived discovery skills.
 
+## Current Release
+
+**[v0.2.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.2.0)** introduces
+the single living master PRD and approval-time publication (schema version 5,
+approval format 2). See the [release notes](CHANGELOG.md#020) and
+[migration guide](#migrating-existing-installations-and-prds) when upgrading from
+`v0.1.0`.
+
 ## Requirements
 
 - Node.js `20.19.0` or newer
@@ -20,7 +28,7 @@ repository. Pin a release tag or commit so every collaborator receives the same
 workflow version:
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.1.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.2.0
 npx openspec-agile-pm init --client opencode --dry-run
 npx openspec-agile-pm init --client opencode
 ```
@@ -109,6 +117,10 @@ restores the prior schema selection when safe.
 
 ## Updating A GitHub Installation
 
+Run these commands in the consuming project to upgrade to `v0.2.0`. Updating the
+dependency alone does not replace the installed workflow assets; the `update`
+step applies the new schema, commands, and managed configuration rules.
+
 ```bash
 npm install --save-dev github:codehausau/openspec-agile-pm#v0.2.0
 npx openspec-agile-pm update --dry-run
@@ -116,14 +128,18 @@ npx openspec-agile-pm update
 npx openspec-agile-pm doctor
 ```
 
-Restart OpenCode after installing or updating its adapter.
+Verify `npx openspec-agile-pm --version` reports `0.2.0`, then restart OpenCode
+after installing or updating its adapter. Commit the dependency/lockfile changes
+and the updated workflow assets and install manifest in the consuming project.
+Existing approved PRDs require the [migration steps](#migrating-existing-installations-and-prds)
+below before they can publish a master under the new workflow.
 
 ## Product Workflow
 
 ```text
 brainstorm/discovery
   -> product brief
-  -> owning PRD + capability PRDs
+  -> change-scoped PRD + capability PRDs
   -> full proposed master PRD revision + baseline diff
   -> explicit product approval and immediate master publication
   -> proposal + specs + design
@@ -184,9 +200,10 @@ or semantic reconciliation; agents must execute the prescribed preflights.
 
 ### Migrating Existing Installations And PRDs
 
-1. Install the updated package version, then update the consuming project's bundle:
+1. Install `v0.2.0`, then update the consuming project's bundle:
 
    ```bash
+   npm install --save-dev github:codehausau/openspec-agile-pm#v0.2.0
    npx openspec-agile-pm update --dry-run
    npx openspec-agile-pm update
    npx openspec-agile-pm doctor
@@ -243,6 +260,16 @@ npm run check
 npm test
 npm pack --dry-run
 ```
+
+### Releasing
+
+Keep `package.json`, the root package versions in `package-lock.json`, the README
+install/upgrade examples, and `CHANGELOG.md` aligned before releasing. Run the
+development checks above, commit the release changes, and create an annotated
+`v<package-version>` tag on that commit. Push both the release commit and tag;
+verify the remote tag points to the release commit before announcing it. GitHub
+installations resolve the tag, so pushing `main` alone does not update a pinned
+installation.
 
 ## License
 

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -11,14 +12,15 @@ function run(...args) {
   return spawnSync(process.execPath, [CLI, ...args], { encoding: "utf8" });
 }
 
-test("standard global help and version flags work", () => {
+test("standard global help and version flags work", async () => {
   const help = run("--help");
   assert.equal(help.status, 0);
   assert.match(help.stdout, /openspec-agile-pm <command>/);
 
   const version = run("--version");
   assert.equal(version.status, 0);
-  assert.match(version.stdout, /^0\.1\.0\s*$/);
+  const packageJson = JSON.parse(await readFile(path.join(ROOT, "package.json"), "utf8"));
+  assert.equal(version.stdout.trim(), packageJson.version);
 });
 
 test("value and conflicting client options fail clearly", () => {
