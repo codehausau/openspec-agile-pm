@@ -34,16 +34,19 @@ rules:
     - Use capability-qualified references in the form <change-name>#<capability-path>/FR-001.
     - Capability PRDs define product intent and priority; OpenSpec specs define normative behavior and test scenarios.
     - Ask rather than guess when requirement intent, priority, acceptance, dependencies, risks, or exclusions are unclear.
+    - Follow workflows/user-journeys.md for relevant journey/flow coverage; map product steps to requirements and acceptance outcomes without introducing scope in diagrams.
   master-prd:
     - Prepare one self-contained full product revision from the current approved docs/product/prd.md and the change-scoped PRDs before approval.
     - Preserve unaffected requirements and identities; integrate additions, modifications, and retirements and reconcile contradictory boundaries.
     - Record the raw-byte baseline SHA-256 or absent, show the baseline diff and complete master, and rebase with human review if the baseline changes.
     - Reconcile legacy approved snapshots with the human instead of concatenating them or assuming the newest increment is the whole product.
+    - Embed optional journey tables, Mermaid flows, and text equivalents in the master; reconcile affected views and requirement coverage using workflows/user-journeys.md.
   product-approval:
     - Create only after explicit approval of prd.md, every indexed capability PRD, and the complete master-prd.md revision by the user.
     - Include master-prd.md last in the deterministic PRD-set manifest and require approval format 2 with master and baseline hashes.
     - Complete approval by publishing the exact reviewed master to docs/product/prd.md immediately, using the selected planning home and the guarded publication transaction.
     - Preserve previous approved bytes and records in product-history before removing working approval for revisions; leave the published master intact until reapproval.
+    - Review embedded journeys and flows with the PRD set, verify syntax and consistency, and treat later diagram edits as changes requiring reapproval.
   proposal:
     - Reject stale PRD-set approval before creating or updating the proposal.
     - Trace every proposed capability to one or more capability-qualified PRD requirement IDs.

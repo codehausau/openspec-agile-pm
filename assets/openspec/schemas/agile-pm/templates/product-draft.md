@@ -22,6 +22,33 @@ Sections may be partial; open questions and competing ideas are expected.
 <!-- Describe useful user journeys and outcomes in product language. Success signals
      may be qualitative; do not invent quantitative targets or commitments. -->
 
+## User Journeys
+
+<!-- Optional: use workflows/user-journeys.md and examples/user-journeys.md in the
+     installed schema. Omit this section when not useful. Repeat for meaningful
+     actor/goal pairs; partial journeys and open questions are welcome. -->
+
+### <!-- Stable journey name -->
+
+**Basis:** <!-- Observed current experience with evidence, or proposed target experience -->
+**Actor and goal:** <!-- Who and what they are trying to achieve -->
+**Trigger and context:** <!-- Starting situation or preconditions -->
+**Desired outcome:** <!-- What success means; not a delivery commitment -->
+
+| Stage | User goal and action | Touchpoint and product response | Friction or open question | Evidence or assumption | Outcome |
+| --- | --- | --- | --- | --- | --- |
+| <!-- stage --> | <!-- action --> | <!-- response --> | <!-- known difficulty or question --> | <!-- source, assumption, or unknown --> | <!-- outcome --> |
+
+## User Flows
+
+<!-- Optional: name the task, actor, entry conditions, outcomes, and related journey
+     heading. Embed a fenced mermaid flowchart TD or LR using quoted plain-text node
+     labels and labelled decision branches. Include relevant success, cancellation,
+     failure, and recovery paths, plus a short text equivalent. See the installed
+     example for valid syntax. Keep uncertain product choices in Open Questions;
+     a diagram must not silently decide them. Reference candidate capabilities when
+     useful; formal requirement IDs are not required while shaping. -->
+
 ## Candidate Capabilities
 
 <!-- Group developing ideas coherently. Distinguish existing master context,

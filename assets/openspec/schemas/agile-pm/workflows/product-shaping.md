@@ -70,6 +70,15 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
   sections, human edits, and useful alternatives. Move rejected or parked ideas to
   a short decision note with the human's stated reason, rather than erasing them
   or keeping them as active candidate requirements.
+- When the human asks for user journeys or flows, or mapping would clarify the
+  experience, follow `workflows/user-journeys.md` in this installed schema and use
+  `examples/user-journeys.md` as a fictional example. Embed optional journey tables
+  and Mermaid flowcharts in the selected draft, with a text equivalent for each
+  flow. Keep evidence and proposed experiences distinct. These views explore product
+  behavior without choosing architecture or requiring a delivery increment.
+- Revise affected journey stages, flow branches, and candidate capabilities together
+  as the conversation develops. Keep unresolved choices explicit, preserve unrelated
+  views, and carry the relevant experience into the explicit handoff for human review.
 - Use `Master Baseline SHA-256` to record the raw-byte hash of the master read for
   context, or `absent`. It is a context marker, not approval. On resume or handoff,
   compare it with the current master. If it differs, explain the drift and reconcile

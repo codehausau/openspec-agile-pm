@@ -57,6 +57,10 @@ For shaping, follow the contract to create or resume
 questions, and keep the draft current after meaningful turns. Saving does not
 require selecting an increment, resolving all decisions, or obtaining approval.
 Read the existing draft before editing; preserve unrelated content and human edits.
+For requested or useful journeys and flows, follow the installed
+`workflows/user-journeys.md` contract referenced by product-shaping. Embed the
+journey tables and Mermaid source in the draft, with text equivalents, and revise
+affected views with the product conversation. This remains shaping, not technical planning.
 Apply the contract's baseline-drift and concurrent-edit checks. Report the saved
 path and next product question. Stop here: do not run the delivery workflow,
 scaffold a change, publish a master, or generate technical artifacts.
@@ -123,7 +127,10 @@ The remaining sections apply only to delivery mode.
    increment. Reconcile legacy snapshots with the human when no master exists.
    Show the baseline diff, full resulting master, overall hypothesis, success signals,
    and every capability's Must requirements, acceptance outcomes, and open
-   assumptions. Compute the PRD-set digest using product-approval instructions and
+   assumptions. Include embedded journey tables, Mermaid flows, text equivalents,
+   and requirement coverage in the review; check consistency and Mermaid syntax,
+   and report whether rendering was also checked. Compute the PRD-set digest using
+   product-approval instructions and
    retain it with the review summary so later file edits cannot be mistaken for
    reviewed bytes. Ask the user to approve or refine this exact complete PRD set.
    Explain that approval immediately publishes the exact reviewed `master-prd.md`

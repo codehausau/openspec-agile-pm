@@ -106,6 +106,13 @@ artifacts:
       Record assumptions and any open decisions that are safe to defer without
       changing current scope or acceptance.
 
+      When journeys or flows are relevant, follow workflows/user-journeys.md in this
+      installed schema. Identify the capability requirements and acceptance outcomes
+      supporting consequential product steps and branches. The canonical tables and
+      Mermaid source belong in master-prd.md; add references once it is prepared.
+      If mapping exposes missing behavior, clarify it with the human rather than
+      letting a diagram introduce scope absent from the change-scoped requirements.
+
       Write each document as user-facing product documentation that remains useful
       after delivery. Explain product behavior and boundaries in plain language,
       avoid repository-internal shorthand, and never include secrets. OpenSpec
@@ -158,6 +165,16 @@ artifacts:
       separate change PRDs to understand the current product. Use internal anchors
       for capability navigation; links to history are supporting provenance only.
 
+      For useful user journeys and user flows, follow workflows/user-journeys.md in
+      this installed schema and the fictional examples/user-journeys.md. Embed journey
+      tables, Mermaid flowcharts, and text equivalents directly in master-prd.md.
+      Preserve unaffected views and reconcile affected stages, decisions, outcomes,
+      exclusions, and qualified requirement coverage with the reviewed increment.
+      Distinguish observed experience from proposed intent and evidence from assumptions.
+      Validate Mermaid syntax before review and inspect rendering when available;
+      report which checks were performed. These optional views do not add artifacts
+      or require older approved masters to change solely to match the new template.
+
       Reconcile meaning, not just text: add new capabilities, replace modified
       requirement wording, remove retired requirements from active scope, and update
       contradictory exclusions, outcomes, dependencies, and acceptance criteria.
@@ -195,6 +212,9 @@ artifacts:
       This is a human approval gate, not a document-generation exercise. Present
       prd.md hypothesis, boundaries, and feedback loop plus every capability PRD's
       Must requirements, acceptance outcomes, assumptions, and open decisions.
+      Include any embedded journey tables, Mermaid source, text equivalents, and
+      requirement coverage in that review. Use workflows/user-journeys.md to check
+      consistency and diagram validity; resolve material product questions first.
       Create product-approval.md only after the user explicitly approves this
       exact complete PRD set, including master-prd.md and its baseline diff, for
       engineering planning and immediate master publication. Silence, previous discovery
@@ -222,6 +242,9 @@ artifacts:
       and invalidates approval. Never record a rejected, research, or park decision
       as an approval file. Legacy approvals without format 2 do not authorize master
       publication: prepare and review the consolidated master and obtain new approval.
+      Journey and flow edits are PRD content edits, including diagram-only fixes.
+      Preserve approved history and obtain renewed approval before republishing;
+      never render changes back into the master after approval or during archive.
 
       Publication transaction (required for approval completion):
       - Use only the resolved planning home and change root. Reject symlinks in

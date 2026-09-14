@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.4.0
+
+### Added
+
+- Optional user-journey tables and embedded Mermaid user flows in saved PRD drafts
+  and master revisions, with a text equivalent for each flow.
+- Shared client-neutral guidance and a fictional invitation example covering
+  success, decline, invalid-invitation recovery, and requirement coverage.
+- Journey/flow reconciliation during product revision and review within the
+  existing approval digest; diagram-only edits follow normal reapproval.
+- Development-only Mermaid syntax checks for embedded examples and installation
+  coverage for the new shared resources. Existing approvals remain valid until
+  their content is revised; no new delivery artifact or approval format is required.
+
+### Upgrade From 0.3.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.4.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+npx openspec-agile-pm --version
+```
+
+Restart OpenCode after updating its adapter. In a shaping session, ask for a user
+journey or flow, for example:
+
+```text
+/opsx-pm --shape product-vision Map the journey and invitation flow for a new collaborator
+```
+
+The views stay embedded in the draft or master PRD. They are optional and do not
+force a delivery increment. Schema version 5 and approval format 2 are retained;
+valid existing approvals need no renewal solely for this upgrade. Adding or changing
+a view in an approved PRD follows the normal revision and reapproval workflow.
+
 ## 0.3.0
 
 ### Added

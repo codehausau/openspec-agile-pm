@@ -9,10 +9,10 @@ workflow commands and NanoPM-derived discovery skills.
 
 ## Current Release
 
-**[v0.3.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.3.0)** adds saved
-PRD brainstorming with `/opsx-pm --shape` and an explicit draft-to-delivery handoff.
+**[v0.4.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.4.0)** adds embedded
+user journeys and Mermaid user flows to saved PRD brainstorming and master revisions.
 It retains the single approved master, schema version 5, and approval format 2.
-See the [release notes](CHANGELOG.md#030), [upgrade commands](#updating-a-github-installation),
+See the [release notes](CHANGELOG.md#040), [upgrade commands](#updating-a-github-installation),
 and [migration guide](#migrating-existing-installations-and-prds).
 
 ## Requirements
@@ -28,7 +28,7 @@ repository. Pin a release tag or commit so every collaborator receives the same
 workflow version:
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.3.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.4.0
 npx openspec-agile-pm init --client opencode --dry-run
 npx openspec-agile-pm init --client opencode
 ```
@@ -69,6 +69,8 @@ Configuration is merged into `openspec/config.yaml`:
 
 The schema bundle also includes the client-neutral product-shaping contract at
 `openspec/schemas/agile-pm/workflows/product-shaping.md` and its draft template.
+The bundle also includes shared journey/flow guidance and a worked
+example under the schema's `workflows/` and `examples/` directories.
 
 With `--client opencode`:
 
@@ -120,21 +122,21 @@ restores the prior schema selection when safe.
 
 ## Updating A GitHub Installation
 
-Run these commands in the consuming project to upgrade to `v0.3.0`. Updating the
+Run these commands in the consuming project to upgrade to `v0.4.0`. Updating the
 dependency alone does not replace the installed workflow assets; the `update`
 step applies the new schema, commands, and managed configuration rules.
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.3.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.4.0
 npx openspec-agile-pm update --dry-run
 npx openspec-agile-pm update
 npx openspec-agile-pm doctor
 ```
 
-Verify `npx openspec-agile-pm --version` reports `0.3.0`, then restart OpenCode
+Verify `npx openspec-agile-pm --version` reports `0.4.0`, then restart OpenCode
 after installing or updating its adapter. Commit the dependency/lockfile changes
 and the updated workflow assets and install manifest in the consuming project.
-Upgrading from `v0.2.0` adds the shaping resources without changing approval format;
+Upgrading from `v0.2.0` or `v0.3.0` adds the new resources without changing approval format;
 existing valid format-2 approvals need no renewal solely for this upgrade. Legacy
 PRDs from `v0.1.0` require the [migration steps](#migrating-existing-installations-and-prds)
 below before they can publish a master.
@@ -150,7 +152,7 @@ Choose the conversation you need:
 | `/opsx-pm --from-draft <draft-id>` | Explicitly begin selecting an increment from a saved draft |
 | `/opsx-pm <idea-or-change>` | Shape and approve a delivery increment and the resulting master revision |
 
-The shaping and draft-handoff modes are available in `v0.3.0`. For a project with an
+The shaping and draft-handoff modes are available since `v0.3.0`. For a project with an
 existing installation manifest, follow [Updating A GitHub Installation](#updating-a-github-installation)
 to install the new command and shared shaping resources, then restart OpenCode.
 
@@ -220,6 +222,49 @@ For another agent client, follow
 home. Schema-only installation includes this contract and the template. For stores,
 drafts live under the CLI-resolved planning home rather than the current checkout.
 
+### User Journeys And User Flows
+
+Structured journey/flow support is available in `v0.4.0`. Follow
+[Updating A GitHub Installation](#updating-a-github-installation) to install the
+updated templates, shared guidance, and worked example, then restart OpenCode.
+
+Ask within an existing shaping session, or start with a focused prompt:
+
+```text
+/opsx-pm --shape product-vision Map the journey of an invited writer joining a project
+/opsx-pm --shape product-vision Add a user flow for accepting or declining an invitation, including invalid-invitation recovery
+```
+
+- **Journeys** use Markdown tables to describe the actor's goal, trigger, stages,
+  actions, touchpoints, difficulties, evidence or assumptions, and outcomes.
+- **Flows** use embedded Mermaid flowcharts to describe a task's steps, decisions,
+  success paths, and relevant alternatives, cancellation, failure, and recovery.
+  A short text equivalent keeps each flow readable without a diagram renderer.
+
+Both views are optional and stay inside the PRD. Proposed target experiences are
+labelled separately from observed behavior; user research and emotions are never
+invented to fill a table. During brainstorming, questions and alternatives can
+remain open. Drawing a flow does not select architecture or start technical planning.
+
+See the [worked invitation example](assets/openspec/schemas/agile-pm/examples/user-journeys.md)
+for a complete journey, Mermaid flow, text equivalent, and illustrative requirement
+coverage. GitHub renders the Mermaid block directly. Other Markdown clients may
+show its source; the adjacent text remains usable. The same example and
+[client-neutral guidance](assets/openspec/schemas/agile-pm/workflows/user-journeys.md)
+are installed with the schema-only bundle.
+
+When moving into delivery, select the relevant experience with the human and map
+its consequential product behavior to requirements and acceptance outcomes. The
+full master embeds the selected journeys and flows. Changed requirements trigger
+a review of affected stages, branches, outcomes, and references; unaffected views
+are preserved. Diagrams must not introduce scope missing from the reviewed PRDs.
+
+Approval covers the inline tables, Mermaid source, and text equivalents through
+the existing raw-byte digest. Diagram-only corrections after approval follow the
+same history-preservation and reapproval process as other PRD changes. These
+optional sections do not invalidate older approvals or require a new artifact,
+schema version, or approval format merely by installing this update.
+
 ### One Enduring Product PRD
 
 `docs/product/prd.md` is the single, self-contained document for current approved
@@ -270,10 +315,10 @@ or semantic reconciliation; agents must execute the prescribed preflights.
 
 ### Migrating Existing Installations And PRDs
 
-1. Install `v0.3.0`, then update the consuming project's bundle:
+1. Install `v0.4.0`, then update the consuming project's bundle:
 
    ```bash
-   npm install --save-dev github:codehausau/openspec-agile-pm#v0.3.0
+   npm install --save-dev github:codehausau/openspec-agile-pm#v0.4.0
    npx openspec-agile-pm update --dry-run
    npx openspec-agile-pm update
    npx openspec-agile-pm doctor
@@ -285,7 +330,7 @@ or semantic reconciliation; agents must execute the prescribed preflights.
    align them with approval-time master publication. The installer does not edit
    repository instruction files or existing product documentation.
 
-2. Quit and restart OpenCode after updating its adapter. If upgrading from `v0.2.0`
+2. Quit and restart OpenCode after updating its adapter. If upgrading from `v0.2.0` or `v0.3.0`
    with valid format-2 approvals, migration is complete. The remaining steps apply
    to legacy approvals or projects without a consolidated approved master.
 3. For an active change, run `/opsx-pm <change-name>`. Older approvals must be
@@ -307,7 +352,15 @@ intent requires a new reviewed revision of the current master.
 
 ### Workflow Smoke Test
 
-With the `v0.3.0` bundle installed, start `/opsx-pm --shape product-vision`,
+With the `v0.4.0` bundle installed, ask for the invitation journey and flow
+above. Inspect a rendered preview on GitHub or another Mermaid-capable viewer, and
+walk the success, decline, and invalid-invitation paths against the text equivalent.
+Ask to explore owner approval before joining: verify the journey, flow, and candidate
+behavior evolve together while the draft remains unapproved. At a delivery handoff,
+review the selected behavior against requirements and acceptance outcomes. Preserve
+unrelated paths and verify approval includes the final inline diagram source.
+
+With the `v0.4.0` bundle installed, start `/opsx-pm --shape product-vision`,
 discuss a capability, and pause with a meaningful question still open. Confirm the
 saved draft is marked unapproved and no delivery change or published master was
 created. Start a fresh session with the same command and check that the agent
@@ -341,8 +394,15 @@ resolved planning-home root.
 npm install
 npm run check
 npm test
+npm run test:diagrams
 npm pack --dry-run
 ```
+
+`test:diagrams` uses Mermaid's parser to validate every embedded Mermaid example
+in package Markdown, including closed fences. Mermaid and JSDOM are development-only
+dependencies; consumers do not need them to install the workflow. Parsing verifies
+syntax, not visual layout or product consistency. Use the rendered smoke check
+above for readability and the human PRD review for semantic consistency.
 
 ### Releasing
 

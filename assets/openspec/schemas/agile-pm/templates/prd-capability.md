@@ -31,6 +31,14 @@
 
 <!-- Product-level evidence that this capability is acceptable. Normative scenarios belong in OpenSpec specs. -->
 
+## Journey And Flow Coverage
+
+<!-- Optional: reference relevant headings in ../../master-prd.md and identify which
+     requirements/acceptance outcomes support the consequential steps and branches.
+     For nested capability paths, adjust the relative link to the change root.
+     Keep canonical journey tables and Mermaid source embedded in the master rather
+     than duplicating them here. Surface uncovered behavior for product clarification. -->
+
 ## Dependencies
 
 | Dependency | Why needed | Readiness or owner |

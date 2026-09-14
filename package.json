@@ -1,6 +1,6 @@
 {
   "name": "openspec-agile-pm",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Approval-gated product discovery and capability PRDs for OpenSpec",
   "type": "module",
   "bin": {
@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "test": "node --test",
+    "test:diagrams": "node --test test/diagrams.test.js",
     "check": "node --check bin/cli.js && node --check lib/installer.js"
   },
   "keywords": [
@@ -40,5 +41,9 @@
   },
   "dependencies": {
     "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "mermaid": "^11.17.2"
   }
 }

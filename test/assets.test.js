@@ -138,3 +138,29 @@ test("product shaping is a shared workflow outside the delivery artifact graph",
   }
   assert.ok(!schema.apply.requires.includes("product-draft"));
 });
+
+test("journey guidance is shared by shaping, master preparation, and approval", async () => {
+  const schemaRoot = path.join(ASSETS, "openspec", "schemas", "agile-pm");
+  const schema = YAML.parse(await readFile(path.join(schemaRoot, "schema.yaml"), "utf8"));
+  const workflowPath = "workflows/user-journeys.md";
+  const examplePath = "examples/user-journeys.md";
+  const workflow = await readFile(path.join(schemaRoot, workflowPath), "utf8");
+  const shaping = await readFile(path.join(schemaRoot, "workflows/product-shaping.md"), "utf8");
+  assert.ok(shaping.includes(workflowPath));
+  assert.ok(workflow.includes(examplePath));
+  await readFile(path.join(schemaRoot, examplePath));
+
+  for (const name of ["product-draft.md", "master-prd.md"]) {
+    const template = await readFile(path.join(schemaRoot, "templates", name), "utf8");
+    assert.ok(template.includes(workflowPath), `${name} must use the shared conventions`);
+    assert.match(template, /^## User Journeys$/m);
+    assert.match(template, /^## User Flows$/m);
+  }
+  for (const id of ["prd-capabilities", "master-prd", "product-approval"]) {
+    const artifact = schema.artifacts.find((artifact) => artifact.id === id);
+    assert.ok(artifact.instruction.includes(workflowPath), `${id} must reconcile the same product views`);
+  }
+  for (const artifact of schema.artifacts) {
+    assert.doesNotMatch(artifact.generates, /journey|flow|\.mmd|\.svg/, "views stay embedded in existing PRDs");
+  }
+});

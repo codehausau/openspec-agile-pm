@@ -256,6 +256,8 @@ test("schema-only installs shaping resources and preserves saved drafts across u
   const resources = [
     "openspec/schemas/agile-pm/workflows/product-shaping.md",
     "openspec/schemas/agile-pm/templates/product-draft.md",
+    "openspec/schemas/agile-pm/workflows/user-journeys.md",
+    "openspec/schemas/agile-pm/examples/user-journeys.md",
   ];
   const manifestPath = path.join(root, "openspec/.agile-pm-install.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
