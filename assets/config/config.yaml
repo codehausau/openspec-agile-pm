@@ -8,14 +8,19 @@ context: |
   Preserve human judgement and approval points. Treat safety, auditability,
   interoperability, compatibility, privacy, security, migration, and operational
   resilience as relevant constraints when the proposed capability touches them.
-  Plan in small end-to-end spirals that produce user or operational feedback.
+  For delivery planning, use small end-to-end spirals that produce user or
+  operational feedback. For open-ended PRD shaping, follow the installed
+  agile-pm workflows/product-shaping.md contract and maintain a saved draft
+  without requiring a delivery increment or entering engineering planning.
   Agile-pm is human-led and iterative: ask focused questions until the vision,
-  desired outcome, boundaries, and current capability increment are understood.
+  desired outcome, and boundaries are understood. Clarify the current capability
+  increment when the human chooses delivery planning.
   Artifact dependencies preserve coherence but do not create irreversible phases;
   learning may flow back into the PRD set with renewed approval.
 
 rules:
   product-brief:
+    - Honor explicit product-shaping intent using workflows/product-shaping.md; saved drafts remain outside the delivery graph until an explicit scoping handoff.
     - Separate known evidence, assumptions, and unknowns.
     - Compare alternatives, including doing nothing, before recommending work.
     - Ask the human focused, adaptive questions and confirm the brief represents their intent.

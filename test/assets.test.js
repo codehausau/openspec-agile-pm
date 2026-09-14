@@ -109,3 +109,32 @@ test("approval and adapter contracts include master publication and historical p
     assert.doesNotMatch(command, /Approved for archive-time publication|Published to `docs\/product\/<target-name>/);
   }
 });
+
+test("product shaping is a shared workflow outside the delivery artifact graph", async () => {
+  const schemaRoot = path.join(ASSETS, "openspec", "schemas", "agile-pm");
+  const schema = YAML.parse(await readFile(path.join(schemaRoot, "schema.yaml"), "utf8"));
+  const workflowPath = "workflows/product-shaping.md";
+  const templatePath = "templates/product-draft.md";
+  const workflow = await readFile(path.join(schemaRoot, workflowPath), "utf8");
+  const template = await readFile(path.join(schemaRoot, templatePath), "utf8");
+  const command = await readFile(path.join(ASSETS, "opencode", "commands", "opsx-pm.md"), "utf8");
+  const config = YAML.parse(await readFile(path.join(ASSETS, "config", "config.yaml"), "utf8"));
+
+  assert.ok(command.includes(workflowPath), "adapter must load the shared shaping contract");
+  assert.ok(workflow.includes(templatePath), "shared contract must name its installed template");
+  assert.ok(schema.artifacts.find(({ id }) => id === "product-brief").instruction.includes(workflowPath));
+  assert.ok(config.rules["product-brief"].some((rule) => rule.includes(workflowPath)));
+  for (const mode of ["--shape", "--from-draft"]) {
+    assert.ok(command.includes(mode));
+    assert.ok(workflow.includes(`/opsx-pm ${mode}`));
+  }
+  for (const field of ["**Mode:** product-shaping", "**Status:** Draft — unapproved"]) {
+    assert.ok(template.includes(field), "saved draft must identify its non-approved mode");
+  }
+  for (const artifact of schema.artifacts) {
+    assert.notEqual(artifact.template, "product-draft.md", "shaping is not a delivery artifact");
+    assert.doesNotMatch(artifact.generates, /product-drafts|product-draft\.md/);
+    assert.ok(!artifact.requires.includes("product-draft"), "existing changes must not require a draft");
+  }
+  assert.ok(!schema.apply.requires.includes("product-draft"));
+});

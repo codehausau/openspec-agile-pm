@@ -78,6 +78,8 @@ Suggest one next action only when warranted:
 
 - `/pm-discovery <question>` when assumptions need testing
 - `/pm-opportunities` when a recurring problem should enter the opportunity set
+- `/opsx-pm --shape <draft-id>` when the user wants a saved, evolving PRD draft
+  without selecting a delivery increment; switch to that workflow explicitly
 - `/opsx-pm <idea>` when the user is ready to shape an approval-gated product brief
 
 Never suggest NanoPM's PRD or breakdown workflows. `/opsx-pm` is the only product

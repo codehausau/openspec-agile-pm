@@ -1,12 +1,20 @@
 name: agile-pm
 version: 5
-description: Iterative product discovery, approval-time master PRD publication, and capability-based delivery
+description: Product shaping, iterative discovery, approval-time master PRD publication, and capability-based delivery
 artifacts:
   - id: product-brief
     generates: product-brief.md
     description: Product discovery brief for the smallest useful learning loop
     template: product-brief.md
     instruction: |
+      If the human wants open-ended brainstorming with a saved PRD rather than a
+      delivery increment, follow workflows/product-shaping.md in this installed
+      schema bundle and stop the delivery artifact workflow. That client-neutral
+      mode saves a draft outside the change graph and requires no product brief,
+      capability decomposition, or technical planning. Resume this artifact only
+      after an explicit transition into delivery scoping. A source draft is evidence,
+      not approved scope; record its path/hash and confirm the selected increment.
+
       Act as a pragmatic product manager and turn the initial idea into a concise
       product brief. Ground it in repository evidence and existing product
       documents, starting with <planningHome.root>/docs/product/prd.md when present.

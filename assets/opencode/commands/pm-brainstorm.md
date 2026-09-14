@@ -9,5 +9,6 @@ it exactly.
 Topic or starting context: $ARGUMENTS
 
 Keep this conversational. Do not create OpenSpec artifacts or implementation code.
-If the idea becomes concrete, use `/opsx-pm` as the only authoritative product
-handoff.
+If the human wants to maintain a saved PRD while exploring, suggest an explicit
+switch to `/opsx-pm --shape <draft-id>`. For a delivery increment, use `/opsx-pm`
+as the authoritative product handoff.

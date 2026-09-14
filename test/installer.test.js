@@ -249,3 +249,65 @@ test("update migrates owned archive-publication rules while preserving historica
   await install({ cwd: root, mode: "update" });
   assert.equal(await readFile(configPath, "utf8"), once, "migration must be idempotent");
 });
+
+test("schema-only installs shaping resources and preserves saved drafts across updates and uninstall", async (t) => {
+  const root = await temporaryProject(t);
+  await install({ cwd: root, mode: "init" });
+  const resources = [
+    "openspec/schemas/agile-pm/workflows/product-shaping.md",
+    "openspec/schemas/agile-pm/templates/product-draft.md",
+  ];
+  const manifestPath = path.join(root, "openspec/.agile-pm-install.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  for (const relative of resources) {
+    const content = await readFile(path.join(root, relative));
+    assert.equal(manifest.files[relative], createHash("sha256").update(content).digest("hex"));
+  }
+  await assert.rejects(readFile(path.join(root, ".opencode/commands/opsx-pm.md")), /ENOENT/);
+  await assert.rejects(readFile(path.join(root, "openspec/product-drafts/product-vision.md")), /ENOENT/);
+
+  const documents = {
+    "openspec/product-drafts/product-vision.md": [
+      "# Collaboration PRD Draft",
+      "**Mode:** product-shaping",
+      "**Status:** Draft — unapproved",
+      "## Open Questions",
+      "Should collaborators share a workspace or only selected documents?",
+      "## Resume Here",
+      "Explore invitations next; no delivery increment has been chosen.",
+      "",
+    ].join("\n"),
+    "docs/product/prd.md": "Existing approved master.\n",
+    "openspec/changes/current/product-approval.md": "Existing approval record.\n",
+  };
+  for (const [relative, content] of Object.entries(documents)) {
+    await mkdir(path.dirname(path.join(root, relative)), { recursive: true });
+    await writeFile(path.join(root, relative), content);
+  }
+
+  // An older manifest did not own these resources. Updating must add them without
+  // treating the consumer's exploratory draft as an installed or generated asset.
+  for (const relative of resources) {
+    await rm(path.join(root, relative));
+    delete manifest.files[relative];
+  }
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  await install({ cwd: root, mode: "update" });
+  const updated = JSON.parse(await readFile(manifestPath, "utf8"));
+  for (const relative of resources) {
+    assert.ok(updated.files[relative]);
+    await readFile(path.join(root, relative));
+  }
+  for (const [relative, content] of Object.entries(documents)) {
+    assert.equal(updated.files[relative], undefined);
+    assert.equal(await readFile(path.join(root, relative), "utf8"), content);
+  }
+
+  await uninstall({ cwd: root });
+  for (const relative of resources) {
+    await assert.rejects(readFile(path.join(root, relative)), /ENOENT/);
+  }
+  for (const [relative, content] of Object.entries(documents)) {
+    assert.equal(await readFile(path.join(root, relative), "utf8"), content);
+  }
+});

@@ -1,14 +1,32 @@
 ---
-description: "Shape a product increment and approve a cohesive master PRD revision"
+description: "Brainstorm a saved PRD draft or shape an approval-gated product increment"
 agent: build
 ---
 
-Act as a pragmatic product manager for an OpenSpec change. Develop the product
-thinking with the user before handing the approved PRD set to engineering planning.
-This command creates planning artifacts and publishes the approved master PRD;
-it never implements product code.
+Act as a pragmatic product manager. Develop product thinking with the human in
+the selected mode. Shaping maintains an exploratory draft; delivery mode prepares
+an approval-gated increment and publishes its approved master. Neither implements
+product code.
 
-**Input:** A product idea or an existing change name: $ARGUMENTS
+**Input:** A product idea, existing change name, or mode request: $ARGUMENTS
+
+**Select the mode before the delivery workflow below:**
+
+- `--shape <draft-id> [topic]`: start or resume a saved PRD brainstorming session.
+  The ID names a draft, not a delivery change. No existing change is required.
+- `--from-draft <draft-id>`: explicitly enter delivery scoping using an existing
+  draft as evidence. This is not approval of the draft or permission to build it.
+- An explicit natural-language request to brainstorm and maintain a PRD draft also
+  selects shaping. Agree on a draft ID or resume the draft named in the conversation.
+- Resuming an existing shaping draft without a mode-switch request stays in shaping,
+  even if it has no open questions or an associated change has ready artifacts.
+- Otherwise, an idea or change name uses the existing delivery workflow. If intent
+  is unclear between saved brainstorming and delivery scoping, ask one focused
+  question before creating or editing files. A bare draft ID without mode/context
+  must not be silently treated as a change name when a saved draft matches it.
+- These are agent command arguments, not flags for the OpenSpec CLI. Do not forward
+  them to OpenSpec. Reject combined `--shape`/`--from-draft` or missing IDs; for other
+  ambiguous input, clarify rather than inventing a target or changing modes.
 
 **Store selection:** Use this repository's nearest `openspec/` root by default.
 If the user names a registered OpenSpec store or the work already lives in one,
@@ -23,7 +41,36 @@ If either schema or config contract is missing, stop and explain that the comple
 bundle must be installed there; never fall back to another schema. Every unscoped
 command below is shorthand for the same command with the selected store flag.
 
-**Working style**
+**Shaping workflow and draft handoff**
+
+For shaping or `--from-draft`, after store selection run `openspec context --json`
+with the same selected-root flags. Use the returned `root.path` as
+`planningHome.root` for this standalone workflow. Read that home's
+`openspec/schemas/agile-pm/workflows/product-shaping.md` as the authoritative
+client-neutral contract, and
+`openspec/schemas/agile-pm/templates/product-draft.md` for new drafts.
+Require both files; if missing, stop and request a bundle update in that planning
+home rather than improvising a draft location or falling through to delivery.
+
+For shaping, follow the contract to create or resume
+`<planningHome.root>/openspec/product-drafts/<draft-id>.md`, ask focused product
+questions, and keep the draft current after meaningful turns. Saving does not
+require selecting an increment, resolving all decisions, or obtaining approval.
+Read the existing draft before editing; preserve unrelated content and human edits.
+Apply the contract's baseline-drift and concurrent-edit checks. Report the saved
+path and next product question. Stop here: do not run the delivery workflow,
+scaffold a change, publish a master, or generate technical artifacts.
+
+For `--from-draft`, require and read the existing draft, then follow the contract's
+explicit handoff before entering delivery step 2. First ask which product outcomes
+and capabilities to select. Keep all discovery, capture, approval, and engineering
+gates; record draft provenance in the product brief. Leave the saved draft available
+for further exploration. In an ongoing shaping conversation, an ambiguous "approve"
+or "looks good" stays in shaping until the human clarifies the intended transition.
+
+The remaining sections apply only to delivery mode.
+
+**Delivery working style**
 
 - Be curious and challenging, but lightweight. Do not run a fixed questionnaire.
 - Inspect the repository and its product documents so the discussion is grounded.
@@ -35,7 +82,7 @@ command below is shorthand for the same command with the selected store flag.
 - Prefer the smallest end-to-end spiral that can produce useful feedback.
 - Keep the human product owner in control at the brief and PRD-set approval points.
 
-**Workflow**
+**Delivery workflow**
 
 1. Run `openspec list --json` and determine whether the input names an existing
    change. If more than one change could apply, ask the user to choose.

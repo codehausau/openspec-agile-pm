@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+
+- Product-shaping mode through `/opsx-pm --shape <draft-id>`: brainstorm product
+  intent and maintain one saved PRD draft across sessions without choosing an MVP,
+  delivery increment, or technical approach.
+- Durable, explicitly unapproved drafts under `openspec/product-drafts/`, with
+  open questions, alternatives, context-baseline tracking, and resumable notes.
+- Explicit `/opsx-pm --from-draft <draft-id>` handoff into increment scoping,
+  preserving the existing human review and publication gates.
+- A client-neutral shaping contract and draft template included in schema-only
+  installations, plus documentation and installation coverage.
+
+### Upgrade From 0.2.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.3.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+npx openspec-agile-pm --version
+```
+
+Restart OpenCode, then start `/opsx-pm --shape product-vision`. Updating the bundle
+installs the shared shaping contract and draft template as well as the command
+changes. Saved drafts remain consumer-owned documents across updates and uninstall.
+Schema version 5 and approval format 2 are retained; valid `v0.2.0` approvals do
+not require renewal solely for this upgrade. Projects upgrading from `v0.1.0`
+should also follow the [master-PRD migration guide](README.md#migrating-existing-installations-and-prds).
+
 ## 0.2.0
 
 ### Added

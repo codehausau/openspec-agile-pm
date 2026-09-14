@@ -1,6 +1,6 @@
 {
   "name": "openspec-agile-pm",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Approval-gated product discovery and capability PRDs for OpenSpec",
   "type": "module",
   "bin": {

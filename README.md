@@ -1,6 +1,6 @@
 # openspec-agile-pm
 
-An approval-gated OpenSpec workflow that adds adaptive product discovery,
+An OpenSpec product workflow with saved PRD brainstorming, adaptive discovery,
 change-scoped capability PRDs, one cohesive living master PRD, deterministic
 product approval, and requirement traceability before implementation.
 
@@ -9,11 +9,11 @@ workflow commands and NanoPM-derived discovery skills.
 
 ## Current Release
 
-**[v0.2.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.2.0)** introduces
-the single living master PRD and approval-time publication (schema version 5,
-approval format 2). See the [release notes](CHANGELOG.md#020) and
-[migration guide](#migrating-existing-installations-and-prds) when upgrading from
-`v0.1.0`.
+**[v0.3.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.3.0)** adds saved
+PRD brainstorming with `/opsx-pm --shape` and an explicit draft-to-delivery handoff.
+It retains the single approved master, schema version 5, and approval format 2.
+See the [release notes](CHANGELOG.md#030), [upgrade commands](#updating-a-github-installation),
+and [migration guide](#migrating-existing-installations-and-prds).
 
 ## Requirements
 
@@ -28,7 +28,7 @@ repository. Pin a release tag or commit so every collaborator receives the same
 workflow version:
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.2.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.3.0
 npx openspec-agile-pm init --client opencode --dry-run
 npx openspec-agile-pm init --client opencode
 ```
@@ -66,6 +66,9 @@ Configuration is merged into `openspec/config.yaml`:
 - preserves existing project context
 - preserves existing rules and operation guidance
 - adds only missing workflow requirements
+
+The schema bundle also includes the client-neutral product-shaping contract at
+`openspec/schemas/agile-pm/workflows/product-shaping.md` and its draft template.
 
 With `--client opencode`:
 
@@ -117,27 +120,43 @@ restores the prior schema selection when safe.
 
 ## Updating A GitHub Installation
 
-Run these commands in the consuming project to upgrade to `v0.2.0`. Updating the
+Run these commands in the consuming project to upgrade to `v0.3.0`. Updating the
 dependency alone does not replace the installed workflow assets; the `update`
 step applies the new schema, commands, and managed configuration rules.
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.2.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.3.0
 npx openspec-agile-pm update --dry-run
 npx openspec-agile-pm update
 npx openspec-agile-pm doctor
 ```
 
-Verify `npx openspec-agile-pm --version` reports `0.2.0`, then restart OpenCode
+Verify `npx openspec-agile-pm --version` reports `0.3.0`, then restart OpenCode
 after installing or updating its adapter. Commit the dependency/lockfile changes
 and the updated workflow assets and install manifest in the consuming project.
-Existing approved PRDs require the [migration steps](#migrating-existing-installations-and-prds)
-below before they can publish a master under the new workflow.
+Upgrading from `v0.2.0` adds the shaping resources without changing approval format;
+existing valid format-2 approvals need no renewal solely for this upgrade. Legacy
+PRDs from `v0.1.0` require the [migration steps](#migrating-existing-installations-and-prds)
+below before they can publish a master.
 
 ## Product Workflow
 
+Choose the conversation you need:
+
+| Entry point | Outcome |
+| --- | --- |
+| `/pm-brainstorm <topic>` | Informal discussion; optional local research notes |
+| `/opsx-pm --shape <draft-id> [topic]` | A saved, evolving PRD draft with no delivery increment required |
+| `/opsx-pm --from-draft <draft-id>` | Explicitly begin selecting an increment from a saved draft |
+| `/opsx-pm <idea-or-change>` | Shape and approve a delivery increment and the resulting master revision |
+
+The shaping and draft-handoff modes are available in `v0.3.0`. For a project with an
+existing installation manifest, follow [Updating A GitHub Installation](#updating-a-github-installation)
+to install the new command and shared shaping resources, then restart OpenCode.
+
 ```text
-brainstorm/discovery
+brainstorm / saved PRD shaping (may continue indefinitely)
+  -> explicit decision to scope a delivery increment
   -> product brief
   -> change-scoped PRD + capability PRDs
   -> full proposed master PRD revision + baseline diff
@@ -151,6 +170,56 @@ brainstorm/discovery
 The optional `pm-*` skills write only local research under ignored `.nanopm/`.
 `/opsx-pm` is the authoritative path into the approval-gated OpenSpec workflow.
 
+### Brainstorm A Living PRD
+
+Start a named draft, or resume it in another session with the same command:
+
+```text
+/opsx-pm --shape product-vision
+/opsx-pm --shape product-vision Explore what collaboration should feel like
+```
+
+The agent maintains `openspec/product-drafts/product-vision.md` as the discussion
+develops. This is one cohesive working PRD, with vision, users, desired experiences,
+candidate capabilities, evidence, alternatives, open questions, and a short resume
+note. Partial sections and unresolved choices are welcome. Saving the draft does
+not require selecting an MVP, assigning priorities, resolving acceptance criteria,
+or deciding architecture and tasks.
+
+The draft is always marked **Draft — unapproved**. It lives outside the delivery
+change graph and can be committed and shared; it is not stored in ignored `.nanopm/`
+research. The published `docs/product/prd.md` remains the approved master. Shaping
+does not create a change, alter existing approvals, or publish product intent.
+Accepting an idea or saying "looks good" continues the conversation without
+triggering a handoff. Useful saved thinking is a successful stopping point.
+
+On resume, the agent reads the saved draft, preserves your edits and parked ideas,
+and continues from its open questions. If the approved master has changed, it
+identifies the difference and reconciles affected ideas with you. It does not
+discard your draft or silently rewrite the master.
+
+When you explicitly want to choose delivery work:
+
+```text
+/opsx-pm --from-draft product-vision
+```
+
+This starts a conversation about which outcomes and capabilities to select. It
+does not approve the draft or commit its whole contents to delivery. The normal
+brief, capture, and PRD approval gates still apply. The product brief records the
+draft path and content hash; subsequent brainstorming does not silently change
+an approved increment. The draft remains available for further exploration.
+
+`--shape` and `--from-draft` are interpreted by the agent's `/opsx-pm` command, not
+by the OpenSpec CLI. Draft IDs are a single lowercase kebab-case name, such as
+`product-vision`, not paths or filenames. Natural-language requests for saved PRD
+brainstorming also select shaping; ambiguous mode switches prompt a question.
+
+For another agent client, follow
+`openspec/schemas/agile-pm/workflows/product-shaping.md` in the selected planning
+home. Schema-only installation includes this contract and the template. For stores,
+drafts live under the CLI-resolved planning home rather than the current checkout.
+
 ### One Enduring Product PRD
 
 `docs/product/prd.md` is the single, self-contained document for current approved
@@ -163,6 +232,7 @@ and reconcile exclusions and dependencies while preserving unaffected content.
 docs/product/
   README.md                         # Stable link to the master
   prd.md                            # Current approved full product document
+openspec/product-drafts/<draft>.md   # Exploratory, unapproved PRD (optional)
 openspec/changes/<change>/
   prd.md                            # This increment's engineering scope
   prd/capabilities/**/*.md           # This increment's detailed requirements
@@ -200,10 +270,10 @@ or semantic reconciliation; agents must execute the prescribed preflights.
 
 ### Migrating Existing Installations And PRDs
 
-1. Install `v0.2.0`, then update the consuming project's bundle:
+1. Install `v0.3.0`, then update the consuming project's bundle:
 
    ```bash
-   npm install --save-dev github:codehausau/openspec-agile-pm#v0.2.0
+   npm install --save-dev github:codehausau/openspec-agile-pm#v0.3.0
    npx openspec-agile-pm update --dry-run
    npx openspec-agile-pm update
    npx openspec-agile-pm doctor
@@ -215,7 +285,9 @@ or semantic reconciliation; agents must execute the prescribed preflights.
    align them with approval-time master publication. The installer does not edit
    repository instruction files or existing product documentation.
 
-2. Quit and restart OpenCode after updating its adapter.
+2. Quit and restart OpenCode after updating its adapter. If upgrading from `v0.2.0`
+   with valid format-2 approvals, migration is complete. The remaining steps apply
+   to legacy approvals or projects without a consolidated approved master.
 3. For an active change, run `/opsx-pm <change-name>`. Older approvals must be
    preserved in `product-history/`, then replaced by explicit format-2 approval of
    the increment and full master revision. A legacy digest alone does not approve
@@ -234,6 +306,17 @@ unapproved revision leaves the last approved master intact. Reversing published
 intent requires a new reviewed revision of the current master.
 
 ### Workflow Smoke Test
+
+With the `v0.3.0` bundle installed, start `/opsx-pm --shape product-vision`,
+discuss a capability, and pause with a meaningful question still open. Confirm the
+saved draft is marked unapproved and no delivery change or published master was
+created. Start a fresh session with the same command and check that the agent
+resumes the saved thinking rather than starting a new PRD. Accept an idea with
+"looks good" and verify it continues shaping. Use `--from-draft product-vision`
+and verify it asks what increment to select before creating delivery artifacts.
+Repeat with an existing approved master and confirm shaping leaves its bytes and
+approval record intact. These are agent-workflow smoke checks, not native CLI
+approval enforcement.
 
 In a disposable consuming project with the updated bundle, use `/opsx-pm` to approve
 an initial product increment. Before `/opsx-apply` or archive, verify that
