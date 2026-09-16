@@ -1,0 +1,9 @@
+# New-site template only. Preserve the full existing configuration when one exists.
+# Stage at product-docs/mkdocs.yml; publish to the selected root config on archive.
+site_name: "<Product name>"
+docs_dir: docs
+nav:
+  - Product:
+      - Overview: product/prd.md
+      # Add Capabilities and System capabilities groups only when nonempty.
+      # Include every indexed page once. Paths are relative to docs_dir.

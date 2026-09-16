@@ -1,17 +1,19 @@
 # Product Approval
 
 **Decision:** Approved for engineering planning
-**Approval Format:** 2
-**Publication:** Approved for immediate publication to docs/product/prd.md
+**Approval Format:** 3
+**Publication:** Approved for archive-time publication of the product documentation set and MkDocs navigation
 
 **PRD-Set SHA-256:** <!-- Lowercase 64-hex digest of the deterministic PRD-set manifest -->
-**PRD-Set File Count:** <!-- prd.md plus every indexed capability PRD plus master-prd.md -->
-**Master SHA-256:** <!-- SHA-256 of master-prd.md raw bytes -->
-**Base Master SHA-256:** <!-- Must match master-prd.md: lowercase 64-hex digest or absent -->
+**PRD-Set File Count:** <!-- Increment, indexed capability PRDs, publication plan, all mapped sources -->
+**Publication Plan SHA-256:** <!-- SHA-256 of product-publication.yaml raw bytes -->
+**Base Publication SHA-256:** <!-- Digest of baseline target/hash manifest, including absent entries -->
 
 ## Approved Product Boundary
 
-<!-- Identify the approved increment AND the complete resulting product master revision. -->
+<!-- Identify the approved increment AND complete proposed documentation set,
+     system capabilities, navigation, removals, and baseline diff. Approval permits
+     delivery; archive publishes after reconciliation. -->
 
 ## Approval Notes
 

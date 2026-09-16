@@ -186,44 +186,59 @@ test("client removal preserves modified obsolete adapter files and stops trackin
   assert.equal(manifest.files[".opencode/commands/pm-brainstorm.md"], undefined);
 });
 
-test("update migrates owned archive-publication rules while preserving historical product documents", async (t) => {
+test("update migrates owned single-master rules without publishing or changing consumer records", async (t) => {
   const root = await temporaryProject(t);
   await install({ cwd: root, client: "opencode", mode: "init" });
 
-  // Model an installed v4 bundle using its original owned config contribution.
-  const oldRule = "Create only after explicit approval of prd.md and every indexed capability PRD by the user.";
+  // Model an installed schema-5 bundle and its original owned contributions.
+  const oldRule = "Complete approval by publishing the exact reviewed master to docs/product/prd.md immediately, using the selected planning home and the guarded publication transaction.";
+  const oldMasterRule = "Prepare one self-contained full product revision before approval.";
   const oldGuidance = [
-    "Publish an approved agile-pm PRD set byte-for-byte under docs/product/<archive-target>/ and index it for project users.",
-    "Add a docs/product/README.md catalog row linking the owning PRD, every capability PRD, and approval record; reject duplicate targets.",
+    "Archive records history only; never publish dated product copies, append catalog rows, or rewrite docs/product/prd.md during archive.",
   ];
   const consumerGuidance = "Preserve this consumer archive convention.";
   const configPath = path.join(root, "openspec", "config.yaml");
   await writeFile(configPath, YAML.stringify({
     schema: "agile-pm",
     context: "Consumer product context.",
-    rules: { "product-approval": [oldRule] },
+    rules: { "product-approval": [oldRule], "master-prd": [oldMasterRule] },
     operations: { archive: { guidance: [...oldGuidance, consumerGuidance] } },
   }));
 
   const manifestPath = path.join(root, "openspec", ".agile-pm-install.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
   manifest.config.contextAdded = null;
-  manifest.config.rulesAdded = { "product-approval": [oldRule] };
+  manifest.config.rulesAdded = { "product-approval": [oldRule], "master-prd": [oldMasterRule] };
   manifest.config.guidanceAdded = { archive: oldGuidance };
 
   const schemaPath = "openspec/schemas/agile-pm/schema.yaml";
-  const oldSchema = "name: agile-pm\nversion: 4\nartifacts: []\n";
+  const oldSchema = "name: agile-pm\nversion: 5\nartifacts: []\n";
   await writeFile(path.join(root, schemaPath), oldSchema);
   manifest.files[schemaPath] = createHash("sha256").update(oldSchema).digest("hex");
   const masterTemplate = "openspec/schemas/agile-pm/templates/master-prd.md";
-  await rm(path.join(root, masterTemplate));
-  delete manifest.files[masterTemplate];
+  const oldTemplate = "# Original single master template\n";
+  await writeFile(path.join(root, masterTemplate), oldTemplate);
+  manifest.files[masterTemplate] = createHash("sha256").update(oldTemplate).digest("hex");
+  const newResources = [
+    "workflows/product-publication.md", "templates/product-overview.md",
+    "templates/product-capability.md", "templates/product-system-capability.md",
+    "templates/product-publication.yaml", "templates/mkdocs.yml",
+  ].map((relative) => `openspec/schemas/agile-pm/${relative}`);
+  for (const relative of newResources) {
+    await rm(path.join(root, relative));
+    delete manifest.files[relative];
+  }
   await writeFile(manifestPath, JSON.stringify(manifest));
 
   const historicalFiles = {
     "docs/product/README.md": "# Product Documentation\n\nHuman preamble and legacy catalog rows.\n",
+    "docs/product/prd.md": "Previously approved single master.\n",
+    "docs/product/capabilities/consumer-page.md": "Consumer-owned capability notes.\n",
+    "mkdocs.yml": "# consumer site\nsite_name: Original\ntheme: readthedocs\nnav:\n  - Guide: guide.md\n",
     "docs/product/2026-09-13-first-increment/prd.md": "Approved historical increment.\n",
     "openspec/changes/archive/2026-09-13-first-increment/product-approval.md": "Original approval record.\n",
+    "openspec/changes/active/master-prd.md": "Pending legacy master.\n",
+    "openspec/changes/active/product-approval.md": "**Approval Format:** 2\n",
   };
   for (const [relative, content] of Object.entries(historicalFiles)) {
     await mkdir(path.dirname(path.join(root, relative)), { recursive: true });
@@ -236,11 +251,15 @@ test("update migrates owned archive-publication rules while preserving historica
   assert.ok(config.operations.archive.guidance.includes(consumerGuidance));
   for (const rule of oldGuidance) assert.ok(!config.operations.archive.guidance.includes(rule));
   assert.ok(!config.rules["product-approval"].includes(oldRule));
-  assert.ok(config.rules["master-prd"].length > 0);
-  assert.ok(config.rules["product-approval"].some((rule) => rule.includes("immediately")));
-  assert.equal(YAML.parse(await readFile(path.join(root, schemaPath), "utf8")).version, 5);
-  await readFile(path.join(root, masterTemplate));
-  await assert.rejects(readFile(path.join(root, "docs/product/prd.md")), /ENOENT/);
+  assert.equal(config.rules["master-prd"], undefined);
+  assert.ok(config.rules["product-docs"].length > 0);
+  assert.ok(config.rules["publication-plan"].length > 0);
+  assert.ok(config.rules["product-approval"].some((rule) => rule.includes("only during archive")));
+  assert.equal(YAML.parse(await readFile(path.join(root, schemaPath), "utf8")).version, 6);
+  await assert.rejects(readFile(path.join(root, masterTemplate)), /ENOENT/);
+  for (const relative of newResources) await readFile(path.join(root, relative));
+  await assert.rejects(readFile(path.join(root, "docs/product/.publication.json")), /ENOENT/);
+  await assert.rejects(readFile(path.join(root, "openspec/changes/active/product-publication.yaml")), /ENOENT/);
   for (const [relative, content] of Object.entries(historicalFiles)) {
     assert.equal(await readFile(path.join(root, relative), "utf8"), content);
   }
@@ -258,6 +277,12 @@ test("schema-only installs shaping resources and preserves saved drafts across u
     "openspec/schemas/agile-pm/templates/product-draft.md",
     "openspec/schemas/agile-pm/workflows/user-journeys.md",
     "openspec/schemas/agile-pm/examples/user-journeys.md",
+    "openspec/schemas/agile-pm/workflows/product-publication.md",
+    "openspec/schemas/agile-pm/templates/product-overview.md",
+    "openspec/schemas/agile-pm/templates/product-capability.md",
+    "openspec/schemas/agile-pm/templates/product-system-capability.md",
+    "openspec/schemas/agile-pm/templates/product-publication.yaml",
+    "openspec/schemas/agile-pm/templates/mkdocs.yml",
   ];
   const manifestPath = path.join(root, "openspec/.agile-pm-install.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
@@ -267,6 +292,8 @@ test("schema-only installs shaping resources and preserves saved drafts across u
   }
   await assert.rejects(readFile(path.join(root, ".opencode/commands/opsx-pm.md")), /ENOENT/);
   await assert.rejects(readFile(path.join(root, "openspec/product-drafts/product-vision.md")), /ENOENT/);
+  await assert.rejects(readFile(path.join(root, "mkdocs.yml")), /ENOENT/);
+  await assert.rejects(readFile(path.join(root, "docs/product/prd.md")), /ENOENT/);
 
   const documents = {
     "openspec/product-drafts/product-vision.md": [

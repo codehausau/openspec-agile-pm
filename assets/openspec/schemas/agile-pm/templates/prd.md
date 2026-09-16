@@ -1,7 +1,8 @@
 # Product Increment Requirements: <!-- Product spiral -->
 
-<!-- This file scopes engineering work for one change. The master-prd artifact
-     integrates this increment into the full product PRD before approval. -->
+<!-- This file scopes engineering work for one change. The product-docs artifact
+     integrates it into the cumulative multi-file PRD for review before approval.
+     Publication occurs at archive after delivery reconciliation. -->
 
 ## Overall Hypothesis
 
@@ -40,9 +41,9 @@
 <!-- Exhaustive list of capability PRDs. Paths are relative to prd/capabilities/, omit .md,
      and use lowercase kebab-case segments. At least one capability is required. -->
 
-| Capability path | Priority | Purpose |
-| --- | --- | --- |
-| [`<capability-path>`](prd/capabilities/<capability-path>.md) | Must | <!-- Product intent, not an OpenSpec spec description --> |
+| Capability path | Kind | Product page | Priority | Purpose |
+| --- | --- | --- | --- | --- |
+| [`<capability-path>`](prd/capabilities/<capability-path>.md) | <!-- user or system --> | <!-- capabilities/<path>.md or system-capabilities/<path>.md --> | Must | <!-- Product intent, not an OpenSpec spec description --> |
 
 ## Cross-Capability Dependencies And Risks
 

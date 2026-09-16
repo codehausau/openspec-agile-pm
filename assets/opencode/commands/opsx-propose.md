@@ -81,9 +81,10 @@ When the user is ready to implement, they must start the apply workflow explicit
    matches the capability files, recompute the deterministic PRD-set manifest
    digest and file count, and compare both with `product-approval.md`. Stop and
    request renewed product approval through `/opsx-pm <name>` if either differs.
-   For graphs containing `master-prd`, include `master-prd.md` last in the manifest
-   and run the Approved master preflight from product-approval instructions,
-   including format 2, publication provenance, and superseded-scope checks.
+   For `agile-pm`, run Approved product set preflight from the installed schema's
+   `workflows/product-publication.md`: format 3, reviewed increment/product-docs/
+   MkDocs/plan digest, and matching full baseline. Approval permits engineering
+   without publication; only archive publishes after delivery reconciliation.
 
 5. **Create every artifact in the required set**
 
@@ -92,12 +93,13 @@ When the user is ready to implement, they must start the apply workflow explicit
    **Capability-PRD human gates override automatic continuation.** When the graph
    contains `product-brief`, `prd`, `prd-capabilities`, and `product-approval`,
    stop after creating `product-brief` and present its recommendation. Continue
-   to the PRD only after an explicit pursue decision. Treat `prd`,
-   `prd-capabilities`, and `master-prd` (when in the graph) as one review unit;
+   to the PRD only after an explicit pursue decision. Treat `prd` and
+   `prd-capabilities` as one review unit; for `agile-pm`, also include `product-docs`
+   and `publication-plan` in that unit. Other schemas use their own approval contract;
    after all are complete and the index exactly matches the files, present the
-   complete PRD set, including the full master and baseline diff, and stop for
-   explicit approval. Create `product-approval` only after that approval and complete
-   its approval-time master publication transaction when applicable. Immediately
+   complete PRD set, including user/system capability pages, navigation, publication
+   plan, and baseline diff, and stop for explicit approval. Create `product-approval`
+   only after approval; do not publish product pages or the live MkDocs config. Immediately
    before the first engineering artifact, run the approval preflight from step 4.
    Never interpret this command's request as approval to cross either human gate.
 

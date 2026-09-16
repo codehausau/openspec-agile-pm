@@ -41,9 +41,10 @@ This is an **agent-driven** operation - you will read delta specs and directly e
    verify the exact index/file match, and compare the recomputed deterministic
    manifest digest and file count with `product-approval.md`. Stop before sync if
    approval is missing or stale; file-existence status is not sufficient.
-   For graphs containing `master-prd`, include `master-prd.md` last in the manifest
-   and run the Approved master preflight from product-approval instructions,
-   including format 2, publication provenance, and superseded-scope checks.
+   For `agile-pm`, run Approved product set preflight from the installed schema's
+   `workflows/product-publication.md`, requiring format 3 and the complete reviewed
+   product-docs/MkDocs/plan manifest and matching baseline. A standalone spec sync
+   does not publish product pages; archive performs that transaction.
 
 3. **Find delta specs**
 

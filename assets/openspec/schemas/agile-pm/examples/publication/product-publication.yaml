@@ -1,0 +1,21 @@
+format: 1
+change: invite-writers
+baseline:
+  docs/product/.publication.json: absent
+  docs/product/README.md: absent
+  docs/product/capabilities/invitations.md: absent
+  docs/product/prd.md: absent
+  docs/product/system-capabilities/access-control.md: absent
+  mkdocs.yml: absent
+files:
+  - source: product-docs/README.md
+    target: docs/product/README.md
+  - source: product-docs/capabilities/invitations.md
+    target: docs/product/capabilities/invitations.md
+  - source: product-docs/prd.md
+    target: docs/product/prd.md
+  - source: product-docs/system-capabilities/access-control.md
+    target: docs/product/system-capabilities/access-control.md
+  - source: product-docs/mkdocs.yml
+    target: mkdocs.yml
+remove: []

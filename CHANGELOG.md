@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.5.0
+
+### Changed
+
+- Schema version 6 / approval format 3: PM prepares and reviews the complete
+  documentation set, approval authorizes it without publication, delivery
+  reconciles findings with reapproval as needed, and archive publishes before
+  preserving the change history.
+- Replace the single `master-prd` artifact with `product-docs` and
+  `publication-plan`: a high-level overview, detailed capability and
+  system-capability pages, preserved README, and staged MkDocs configuration.
+- Maintain cumulative product pages and navigation using a complete reviewed
+  baseline/mapping/removal plan, with stale-baseline rejection, journaled rollback,
+  and derived publication provenance. Detailed journeys/flows live with capabilities.
+- Align all agent adapters, config contributions, shaping baseline tracking, and
+  client-neutral approval/publication instructions with the new lifecycle.
+
+### Migration
+
+- Existing single masters and legacy approvals remain historical records; the
+  installer does not rewrite or republish consumer documentation. Preserve prior
+  approved bytes, prepare/review the multi-file candidate and navigation, obtain
+  explicit format-3 approval, and publish at archive. See the README migration guide.
+- The v0.4.0 tag retains schema 5 / format 2. Existing format-2 approvals need
+  reviewed migration before use with the new archive-publication contract.
+
+### Upgrade From 0.4.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.5.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+npx openspec-agile-pm --version
+```
+
+Restart OpenCode after updating. Use `/opsx-pm <change>` to preserve prior approval
+history, prepare the overview plus capability/system-capability pages and MkDocs
+navigation, and obtain format-3 approval. Publication happens when that change
+archives, after delivery reconciliation. The installer does not migrate published
+product records automatically.
+
 ## 0.4.0
 
 ### Added

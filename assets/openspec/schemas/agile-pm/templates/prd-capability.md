@@ -2,6 +2,8 @@
 
 **Capability Path:** `<capability-path>`
 **Capability Priority:** <!-- Must, Should, or Could -->
+**Kind:** <!-- user or system; preserve requirement identities across classification -->
+**Product Page:** <!-- capabilities/<path>.md or system-capabilities/<path>.md; for retirement: retired: <previous-product-path> -->
 
 ## Purpose
 
@@ -33,11 +35,10 @@
 
 ## Journey And Flow Coverage
 
-<!-- Optional: reference relevant headings in ../../master-prd.md and identify which
-     requirements/acceptance outcomes support the consequential steps and branches.
-     For nested capability paths, adjust the relative link to the change root.
-     Keep canonical journey tables and Mermaid source embedded in the master rather
-     than duplicating them here. Surface uncovered behavior for product clarification. -->
+<!-- Follow workflows/user-journeys.md. Link relevant page/heading under the change's
+     product-docs/capabilities/ or product-docs/system-capabilities/ and map this
+     increment's requirements/acceptance to its steps. Keep cumulative journeys and
+     flows in that detailed product page; surface missing behavior for clarification. -->
 
 ## Dependencies
 

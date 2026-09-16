@@ -38,9 +38,12 @@ Implement tasks from an OpenSpec change.
    stop before implementation and direct the user to `/opsx-pm <name>` for renewed
    approval. Do this even if apply will report `blocked` or `all_done`; OpenSpec
    status tracks file existence and cannot establish that approval is current.
-   For graphs containing `master-prd`, include `master-prd.md` last in the manifest
-   and run the Approved master preflight from product-approval instructions,
-   including format 2, publication provenance, and superseded-scope checks.
+   For `agile-pm`, require `product-docs` and `publication-plan`, and run Approved
+   product set preflight from `workflows/product-publication.md` in the installed
+   schema: format 3, complete reviewed set/MkDocs/plan digest, and full baseline.
+   Publication is not required before implementation. Reconcile delivery/acceptance
+   changes with the human and reapprove when needed; archive publishes the set.
+   Do not modify published product pages or the live MkDocs config during apply.
 
 3. **Get apply instructions**
 

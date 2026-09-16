@@ -8,17 +8,17 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
 ## Inputs And Outputs
 
 - Inputs: a product topic or existing draft ID, the human's conversation, and the
-  selected planning home. The current approved master is optional context.
+  selected planning home. The published product overview and indexed pages are optional context.
 - Output: one evolving Markdown PRD draft at
   `<planningHome.root>/openspec/product-drafts/<draft-id>.md`.
 - Use `templates/product-draft.md` from this same installed schema bundle for a new
   draft. Existing drafts are resumed and revised in place, not replaced by the
   template or copied into a new file for every session.
 - Drafts are durable project documents that may be committed and shared. They are
-  not ignored local research, approved masters, or engineering commitments. Always
+  not ignored local research, published product pages, or engineering commitments. Always
   retain `Mode: product-shaping` and `Status: Draft — unapproved` in the document.
-- Neither the draft nor its path belongs in the approved PRD-set manifest. Approval
-  format 2 and the existing delivery artifact graph are unchanged.
+- Neither the draft nor its path belongs in the approved PRD-set manifest. Shaping
+  does not require the delivery graph or a format-3 approval.
 
 ## Enter And Resume
 
@@ -41,7 +41,8 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
    ask one useful next question. Keep shaping mode sticky across sessions, even
    if the draft seems complete or an associated delivery change exists.
 5. For a new draft, inspect relevant repository product evidence and
-   `docs/product/prd.md` if present. Ask about the product vision or topic, then
+   `docs/product/prd.md` and its indexed capability/system-capability pages if present.
+   Ask about the product vision or topic, then
    capture what is understood using the template. A partial draft is useful;
    unknown users, outcomes, or capabilities are questions, not blockers to saving.
    Do not invent content just to fill the template.
@@ -79,12 +80,18 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
 - Revise affected journey stages, flow branches, and candidate capabilities together
   as the conversation develops. Keep unresolved choices explicit, preserve unrelated
   views, and carry the relevant experience into the explicit handoff for human review.
-- Use `Master Baseline SHA-256` to record the raw-byte hash of the master read for
-  context, or `absent`. It is a context marker, not approval. On resume or handoff,
-  compare it with the current master. If it differs, explain the drift and reconcile
+- Use `Product Baseline SHA-256` to record the digest of all current product pages:
+  overview, README, capability/system-capability Markdown, and `.publication.json`
+  if present. Sort planning-root-relative paths bytewise, emit raw file SHA-256,
+  two spaces, path, and LF, then hash the UTF-8 manifest; use `absent` for no set.
+  Record the path list with the draft's context notes. Do not include dated legacy
+  snapshots in the current set. It is a context marker, not approval. Existing
+  drafts with `Master Baseline SHA-256` retain that historical marker until their
+  overview baseline is checked and the expanded context is reconciled with the human.
+  On resume/handoff, compare the complete current set. If it differs, explain drift and reconcile
   affected ideas with the human while preserving draft work. Update the marker only
   after reconciliation; unresolved drift may remain an open question during shaping.
-  Never overwrite the approved master to make it match the draft.
+  Never overwrite published product pages to make them match the draft.
 - Before saving, re-read the draft and compare it with the bytes read at the start
   of the turn. If someone else edited it, reconcile their edits first; do not overwrite
   them with stale content. Use exclusive creation for a new draft and a staged,
@@ -98,7 +105,7 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
 
 Shaping writes only the selected draft and any temporary file needed for its safe
 save. It must not create or revise delivery artifacts, remove an existing approval,
-publish `docs/product/prd.md`, update a product catalog, or change application code.
+publish product pages, update a product catalog/MkDocs config, or change application code.
 Opening an approved product or an active change as context grants no edit authority
 over those records. A draft may remain unfinished indefinitely.
 
@@ -111,7 +118,7 @@ Only when the human explicitly requests delivery scoping, or uses
 `/opsx-pm --from-draft <draft-id>`, begin the normal product-brief conversation:
 
 1. Require the named draft to exist, validate its path, and read its latest bytes
-   and the current approved master. Resolve material baseline drift with the human.
+   and the current published product set. Resolve material baseline drift with the human.
 2. Ask which candidate outcomes/capabilities belong in the next increment and
    which remain exploratory. A switch into scoping is not agreement to build the
    whole draft, approval to create a change, or approval to publish it.
@@ -120,10 +127,12 @@ Only when the human explicitly requests delivery scoping, or uses
    selected intent in the change-scoped PRDs. Later draft edits do not silently
    change that increment or invalidate its approval; changes to approved intent go
    through the normal revision and reapproval procedure.
-4. Prepare the full master revision against the current approved master using only
-   the reviewed increment. Never copy exploratory candidates wholesale into it.
-   Publication still requires explicit approval of the complete format-2 PRD set;
-   engineering planning and implementation remain separate explicit actions.
+4. Prepare the complete multi-file product candidate and publication plan against
+   the current published set using only the reviewed increment. Follow
+   `workflows/product-publication.md`; do not import exploratory candidates wholesale.
+   Explicit format-3 approval permits delivery, with reapproval for later changes;
+   archive publishes the reconciled pages and navigation. Engineering planning and
+   implementation remain separate explicit actions.
 5. Leave the exploratory draft available for further thinking. It remains
    `Draft — unapproved` after a handoff. Return to shaping whenever the human asks,
    preserving existing delivery artifacts and approval records.

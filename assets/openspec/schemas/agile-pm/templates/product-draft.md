@@ -3,7 +3,7 @@
 **Mode:** product-shaping
 **Status:** Draft — unapproved
 **Draft ID:** <!-- Stable lowercase kebab-case ID -->
-**Master Baseline SHA-256:** <!-- Raw-byte SHA-256 of the master read for context, or absent -->
+**Product Baseline SHA-256:** <!-- Complete product-page context manifest digest per workflows/product-shaping.md, or absent -->
 
 This is a working product conversation, not approved scope or a delivery commitment.
 Sections may be partial; open questions and competing ideas are expected.
@@ -51,7 +51,7 @@ Sections may be partial; open questions and competing ideas are expected.
 
 ## Candidate Capabilities
 
-<!-- Group developing ideas coherently. Distinguish existing master context,
+<!-- Group developing ideas coherently. Distinguish existing published product context,
      user-preferred directions, alternatives, and agent suggestions. No exhaustive
      index, Must/Should/Could priorities, FR IDs, or technical breakdown is required. -->
 

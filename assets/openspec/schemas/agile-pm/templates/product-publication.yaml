@@ -1,0 +1,20 @@
+# Follow workflows/product-publication.md. Include the complete baseline/mapping.
+format: 1
+change: "<change-name>"
+baseline:
+  docs/product/.publication.json: absent
+  docs/product/README.md: absent
+  docs/product/prd.md: absent
+  # Add every current/proposed capability and system-capability target hash.
+  # Use existing mkdocs.yaml instead when that is the selected configuration.
+  mkdocs.yml: absent
+files:
+  - source: product-docs/README.md
+    target: docs/product/README.md
+  - source: product-docs/prd.md
+    target: docs/product/prd.md
+  # Add every indexed user/system capability, including unchanged pages.
+  - source: product-docs/mkdocs.yml
+    target: mkdocs.yml
+# Explicit retired managed capability paths only; never infer deletion from omission.
+remove: []

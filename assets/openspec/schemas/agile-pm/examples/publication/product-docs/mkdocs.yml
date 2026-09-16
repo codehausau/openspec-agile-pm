@@ -1,0 +1,10 @@
+site_name: Shared Writing Groups
+docs_dir: docs
+nav:
+  - Product:
+      - Overview: product/prd.md
+      - Capabilities:
+          - Invitations: product/capabilities/invitations.md
+      - System capabilities:
+          - Access control: product/system-capabilities/access-control.md
+      - About this handbook: product/README.md

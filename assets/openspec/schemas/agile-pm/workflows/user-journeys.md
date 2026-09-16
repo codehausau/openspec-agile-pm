@@ -38,7 +38,7 @@ example, never as evidence or product-specific scope.
    or failed, and what they can do next. Unknown behavior may stay an open question
    during shaping; do not draw an unresolved choice as a settled product promise.
 6. In a shaping draft, reference candidate capability headings when useful; formal
-   requirement IDs and complete flows are not required. In a master revision, map
+   requirement IDs and complete flows are not required. In a product-set revision, map
    consequential product actions and outcomes to the relevant qualified requirements
    and acceptance outcomes. A compact coverage table can group steps/branches.
    Label external context separately. If a flow reveals missing product behavior,
@@ -47,17 +47,19 @@ example, never as evidence or product-specific scope.
 
 ## Markdown And Mermaid Conventions
 
-- Keep journey tables and Mermaid source inside `product-draft.md` content or
-  `master-prd.md`, not in independently published files or images. The working
-  draft's actual filename is `openspec/product-drafts/<draft-id>.md`. Capability
-  PRDs may reference the relevant master heading instead of duplicating a diagram.
+- During shaping, keep tables/Mermaid inside `openspec/product-drafts/<draft-id>.md`.
+  During delivery, put detailed journeys/flows in the corresponding
+  `product-docs/capabilities/` or `product-docs/system-capabilities/` Markdown page;
+  product-wide journeys may live in `product-docs/prd.md`. Increment capability PRDs
+  link to those headings. Archive publishes these reviewed pages to the equivalent
+  `docs/product/` layout. Do not duplicate diagrams or generate separate image artifacts.
 - Use simple ASCII node IDs, quoted plain-text labels, labelled decision edges,
   and ordinary flowchart shapes. Keep each diagram focused on one task. Avoid
   HTML labels, renderer-specific initialization, scripts, click actions, or external
   images; ordinary Markdown readers must still have the adjacent text equivalent.
 - Connect a flow to its journey with an internal Markdown anchor when applicable.
-  Describe every important branch in the text equivalent. Links in the master must
-  work both in the change and at `docs/product/prd.md` without rewriting at publication.
+  Describe every important branch in the text equivalent. Relative links must work
+  in both `product-docs/` and `docs/product/` without archive-time rewriting.
 - Validate Mermaid syntax with an available parser or renderer before review. Use
   a rendered preview to check readability and branch labels when available. Report
   whether syntax only or rendering was checked; do not claim an unperformed visual
@@ -75,15 +77,16 @@ example, never as evidence or product-specific scope.
 - During shaping, update the selected saved draft and retain its unapproved status.
   Map alternative ideas without triggering delivery planning or product publication.
 - At a draft-to-delivery handoff, select the relevant experience with the human.
-  Reconcile it against the current master and reviewed increment. Preserve context
+  Reconcile it against the current published product set and reviewed increment. Preserve context
   from unaffected approved capabilities without importing unrelated draft candidates.
 - Before product approval, review the journey tables, flow source, text equivalents,
   requirement coverage, and important unresolved questions with the rest of the
   complete PRD set. Resolve questions that materially affect scope or acceptance.
   Candidate future paths must remain clearly unapproved and outside current scope.
-- Embedded journeys and diagrams are already covered by approval format 2's raw-byte
+- Embedded journeys and diagrams are covered by approval format 3's raw-byte
   PRD-set digest. Any later edit, including a diagram-only correction, follows the
   existing history-preservation and reapproval procedure. Do not generate or rewrite
-  diagrams after approval or during archive. Older approved masters without these
-  optional views remain valid; adding them is a reviewed revision, not an automatic
-  migration. Published master content is never edited directly.
+  diagrams after approval or during archive. Follow workflows/product-publication.md
+  for digest, history, migration, and archive publication. Preserve legacy approved
+  content; adding optional views is a reviewed revision. Published pages are never
+  edited directly outside the approved publication transaction.

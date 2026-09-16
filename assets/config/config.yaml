@@ -17,6 +17,9 @@ context: |
   increment when the human chooses delivery planning.
   Artifact dependencies preserve coherence but do not create irreversible phases;
   learning may flow back into the PRD set with renewed approval.
+  PM prepares the cumulative product pages; approval authorizes their exact set;
+  delivery reconciles findings with renewed approval; archive publishes the reviewed
+  overview, capabilities, system capabilities, and MkDocs navigation.
 
 rules:
   product-brief:
@@ -28,6 +31,7 @@ rules:
     - Keep Must scope to the smallest increment that can validate the hypothesis.
     - Never claim customer evidence or quantitative baselines that are not documented.
     - Keep detailed requirements in the indexed capability PRDs, not in prd.md.
+    - Index each increment capability's user/system kind and proposed product page without changing existing requirement identities.
     - Develop the hypothesis, outcomes, boundaries, feedback loop, and capability index iteratively with the human.
   prd-capabilities:
     - Keep the prd.md index and prd/capabilities/**/*.md files exhaustive and exact.
@@ -35,22 +39,24 @@ rules:
     - Capability PRDs define product intent and priority; OpenSpec specs define normative behavior and test scenarios.
     - Ask rather than guess when requirement intent, priority, acceptance, dependencies, risks, or exclusions are unclear.
     - Follow workflows/user-journeys.md for relevant journey/flow coverage; map product steps to requirements and acceptance outcomes without introducing scope in diagrams.
-  master-prd:
-    - Prepare one self-contained full product revision from the current approved docs/product/prd.md and the change-scoped PRDs before approval.
+  product-docs:
+    - Follow workflows/product-publication.md to prepare a high-level product-docs/prd.md and complete capabilities/ and system-capabilities/ pages before approval.
     - Preserve unaffected requirements and identities; integrate additions, modifications, and retirements and reconcile contradictory boundaries.
-    - Record the raw-byte baseline SHA-256 or absent, show the baseline diff and complete master, and rebase with human review if the baseline changes.
-    - Reconcile legacy approved snapshots with the human instead of concatenating them or assuming the newest increment is the whole product.
-    - Embed optional journey tables, Mermaid flows, and text equivalents in the master; reconcile affected views and requirement coverage using workflows/user-journeys.md.
+    - Reconcile legacy single masters and approved snapshots with the human; never assume the newest increment is the whole product.
+    - Put detailed requirements, journeys, flows, and text equivalents in capability/system-capability pages using workflows/user-journeys.md.
+  publication-plan:
+    - Follow workflows/product-publication.md for product-publication.yaml and staged product-docs/mkdocs.yml; protect every baseline page and the existing config.
+    - Preserve site settings and unrelated navigation; review the full mapping, explicit removals, proposed pages, and baseline diff before approval.
   product-approval:
-    - Create only after explicit approval of prd.md, every indexed capability PRD, and the complete master-prd.md revision by the user.
-    - Include master-prd.md last in the deterministic PRD-set manifest and require approval format 2 with master and baseline hashes.
-    - Complete approval by publishing the exact reviewed master to docs/product/prd.md immediately, using the selected planning home and the guarded publication transaction.
-    - Preserve previous approved bytes and records in product-history before removing working approval for revisions; leave the published master intact until reapproval.
+    - Create only after explicit approval of the increment, indexed capability PRDs, complete proposed product-docs set, MkDocs config, and publication plan.
+    - Require approval format 3 with PRD-set digest/count, Publication Plan SHA-256, and Base Publication SHA-256 as defined in workflows/product-publication.md.
+    - Approval writes only the approval record; publish product pages and MkDocs navigation only during archive after delivery reconciliation.
+    - Preserve approved bytes and records in product-history before removing working approval for revisions; leave published pages intact until archive.
     - Review embedded journeys and flows with the PRD set, verify syntax and consistency, and treat later diagram edits as changes requiring reapproval.
   proposal:
     - Reject stale PRD-set approval before creating or updating the proposal.
     - Trace every proposed capability to one or more capability-qualified PRD requirement IDs.
-    - Allow skip_specs only when the change-scoped prd.md and indexed capability PRDs contain zero Must requirements; unaffected master requirements do not create new work.
+    - Allow skip_specs only when the change-scoped prd.md and indexed capability PRDs contain zero Must requirements; unaffected cumulative requirements do not create new work.
     - Return product ambiguity to the human and PRD set instead of inventing intent during handoff.
   specs:
     - Reject stale PRD-set approval before creating or updating specs.
@@ -70,15 +76,16 @@ operations:
     guidance:
       - Preserve the PRD scope and human approval points while implementing.
       - Reject stale PRD-set approval before implementation, including blocked or all-done task states.
-      - Run the Approved master preflight from product-approval instructions; validate publication provenance and reconcile scope superseded by later approved revisions.
+      - Run Approved product set preflight from workflows/product-publication.md; require valid approval and a matching full published baseline, not publication of this increment.
+      - Reconcile delivery and acceptance changes in the proposed product pages and reapprove when needed; do not publish pages or MkDocs during apply.
       - Capture newly discovered product assumptions for review instead of silently expanding scope.
       - Feed product discoveries back into the PRD set for human clarification and reapproval, reconcile downstream artifacts, then continue the same change when practical.
   archive:
     guidance:
       - For agile-pm changes, every archive guidance entry below is a mandatory completion requirement, not optional advice; stop on missing, conflicting, or inapplicable guidance.
-      - Verify approval format 2 and the current PRD-set digest and file count including master-prd.md before syncing or archiving.
-      - Run the Approved master preflight from product-approval instructions; allow a valid later approved descendant without republishing an older master.
-      - Preserve prd.md, every indexed capability PRD, master-prd.md, product-approval.md, and product-history with their raw bytes in the archived change.
-      - Archive records history only; never publish dated product copies, append catalog rows, or rewrite docs/product/prd.md during archive.
-      - Leave legacy dated product snapshots and existing catalog rows intact; migrate old approvals through explicit review of a consolidated master.
-      - Verify the archived approval digest and historical records after moving the change; restore the change on verification failure.
+      - Read workflows/product-publication.md and run Approved product set preflight before any spec sync, publication, or archive move.
+      - Require format-3 approval of the complete reconciled documentation set and MkDocs config; verify reviewed digest, plan hash, and full published baseline.
+      - Publish the exact approved overview, capability/system-capability pages, README, and MkDocs config using the shared locked journaled transaction, then archive the change/history.
+      - Preserve historical snapshots, legacy catalog rows, unrelated pages, and unrelated site configuration; remove only explicitly approved retired managed capability pages.
+      - Reject stale baselines, rebase with human review and renewed approval, and never overwrite a newer publication from an older approved candidate.
+      - Verify publication and archived approval/history before reporting success; roll back on failure and retain recovery evidence when rollback cannot be verified.

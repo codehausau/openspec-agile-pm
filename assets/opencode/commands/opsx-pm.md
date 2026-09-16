@@ -5,8 +5,8 @@ agent: build
 
 Act as a pragmatic product manager. Develop product thinking with the human in
 the selected mode. Shaping maintains an exploratory draft; delivery mode prepares
-an approval-gated increment and publishes its approved master. Neither implements
-product code.
+an approval-gated increment and proposed product documentation set. Publication
+happens at archive after delivery reconciliation. Neither mode implements code.
 
 **Input:** A product idea, existing change name, or mode request: $ARGUMENTS
 
@@ -35,8 +35,8 @@ supported OpenSpec command for the rest of the workflow. Before writing in a
 store, run `openspec schemas --json --store <id>` and require that it exposes the
 `agile-pm` schema. Then run `openspec context --json --store <id>`, resolve the
 returned root, and inspect its `openspec/config.yaml`; require the agile-pm human
-elicitation, iterative approval, approval-time master publication, apply feedback,
-and archive history rules.
+elicitation, iterative approval, delivery reconciliation, and archive-time
+multi-file publication rules from `workflows/product-publication.md`.
 If either schema or config contract is missing, stop and explain that the complete
 bundle must be installed there; never fall back to another schema. Every unscoped
 command below is shorthand for the same command with the selected store flag.
@@ -63,7 +63,7 @@ journey tables and Mermaid source in the draft, with text equivalents, and revis
 affected views with the product conversation. This remains shaping, not technical planning.
 Apply the contract's baseline-drift and concurrent-edit checks. Report the saved
 path and next product question. Stop here: do not run the delivery workflow,
-scaffold a change, publish a master, or generate technical artifacts.
+scaffold a change, publish product pages, or generate technical artifacts.
 
 For `--from-draft`, require and read the existing draft, then follow the contract's
 explicit handoff before entering delivery step 2. First ask which product outcomes
@@ -106,8 +106,9 @@ The remaining sections apply only to delivery mode.
    scaffold it again.
 5. Run `openspec status --change "<name>" --json`. Create no more than one ready
    PM review unit (`product-brief`, the combined `prd` plus `prd-capabilities` plus
-   `master-prd` unit, or `product-approval`) between explicit user review points.
-   `prd.md`, all indexed capability PRDs, and `master-prd.md` form one review unit:
+   `product-docs` plus `publication-plan` unit, or `product-approval`) between explicit
+   user review points. The increment, indexed capability PRDs, complete product-docs
+   set, staged MkDocs configuration, and publication plan form one review unit:
    create all artifacts before asking for approval, but never create `product-approval` in
    the same review step. Obtain authoritative
    instructions with `openspec instructions <artifact-id> --change "<name>" --json`,
@@ -122,10 +123,12 @@ The remaining sections apply only to delivery mode.
 7. Create `prd.md` as the change-scoped product increment, then follow the
    `prd-capabilities` instructions to create exactly one
    `prd/capabilities/<capability-path>.md` file per index entry. Verify that the
-   index and files match exactly. Follow the `master-prd` instructions to prepare
-   the full proposed product revision from the current approved master and this
-   increment. Reconcile legacy snapshots with the human when no master exists.
-   Show the baseline diff, full resulting master, overall hypothesis, success signals,
+   index and files match exactly, including user/system kind and product page.
+   Follow `product-docs` and `publication-plan` instructions and load the shared
+   `workflows/product-publication.md` contract. Prepare the high-level overview,
+   detailed capabilities/system-capabilities, staged README/MkDocs config, and full
+   baseline/mapping/removal plan. Reconcile legacy masters/snapshots with the human.
+   Show the baseline diff, complete proposed set, overall hypothesis, success signals,
    and every capability's Must requirements, acceptance outcomes, and open
    assumptions. Include embedded journey tables, Mermaid flows, text equivalents,
    and requirement coverage in the review; check consistency and Mermaid syntax,
@@ -133,22 +136,22 @@ The remaining sections apply only to delivery mode.
    product-approval instructions and
    retain it with the review summary so later file edits cannot be mistaken for
    reviewed bytes. Ask the user to approve or refine this exact complete PRD set.
-   Explain that approval immediately publishes the exact reviewed `master-prd.md`
-   to `<planningHome.root>/docs/product/prd.md`, before implementation; delivery
-   status remains explicit and separate from approved intent.
-   On a refinement request, update the increment, capability documents, and master
+   Explain that approval authorizes engineering and later archive-time publication
+   of the exact reviewed pages and navigation. It does not change published docs or
+   live MkDocs now. Delivery findings must be reconciled and reapproved when needed.
+   On a refinement request, update the increment, product pages, and publication plan
    together instead of advancing. Do not infer approval from file existence or
    prior discovery answers.
 8. Create `product-approval.md` only after explicit approval, following its
-   instructions, including the locked publication transaction and stale-baseline
-   check. Validate the exact index/file match, build the deterministic manifest
-   with `prd.md` first, capability paths in bytewise lexical order, and `master-prd.md`
-   last. Record format 2, PRD-set digest/count, master hash, and baseline hash.
-   Publish the exact approved master and verify it before handoff; never silently
-   rebase or rewrite the candidate after approval. Do not create proposal,
+   instructions and the shared digest/baseline contract. Order `prd.md` first,
+   indexed capability paths bytewise, `product-publication.yaml`, then every mapped
+   source bytewise (including `product-docs/mkdocs.yml`). Record format 3, PRD-set
+   digest/count, Publication Plan SHA-256, and Base Publication SHA-256.
+   Approval writes only the approval record; archive publishes after delivery
+   reconciliation. Never silently rebase approved bytes. Do not create proposal,
    specs, design, tasks, or code in this PM workflow.
-9. When the Approved master preflight passes, including the complete PRD-set digest,
-   file count, and verified publication, report the PM
+9. When Approved product set preflight from `workflows/product-publication.md` passes,
+   including the full reviewed digest and baseline, report the PM
    handoff as complete. Tell the user to
    run `/opsx-propose <name>` and choose to continue the existing change; OpenSpec
    will then generate the engineering proposal, specs, design, and tasks from the
@@ -157,16 +160,16 @@ The remaining sections apply only to delivery mode.
 For an existing change, first inspect its actual artifact files and conversation
 context. If a review is pending, review or revise the existing artifact instead
 of blindly creating the next ready one. If the next ready artifact is `proposal`,
-run the Approved master preflight; PM planning is complete only when approval and
-publication are verified. Any edit, addition, removal, rename, or index change in
-the PRD set, including `master-prd.md`, invalidates product approval: first preserve
+run Approved product set preflight; PM completion requires approval of the candidate,
+not its publication. Any edit, addition, removal, rename, or index change in
+the PRD set, product-docs, staged MkDocs config, or plan invalidates approval: preserve
 the previous approved bytes and record in `product-history/<PRD-set-digest>/` as
 instructed by product-approval, then remove the working `product-approval.md`
-before editing and require fresh approval. Keep the last published master intact
+before editing and require fresh approval. Keep the published product set intact
 while drafting or awaiting approval. This applies even when OpenSpec status reports the
 approval artifact as done. Leave existing engineering artifacts unchanged until
 approval, then use `/opsx-update` to make them coherent. Capability PRD references
 use `<change-name>#<capability-path>/FR-001` or the corresponding NFR form.
 When revising capability membership, this PM workflow may create, delete, or
-rename only the concrete `prd-capabilities` files required to make the approved
-index exact, even when OpenSpec already reports that glob artifact as done.
+rename the concrete increment/cumulative capability files required to make both
+indexes and the publication plan exact, even when file-existence status says done.

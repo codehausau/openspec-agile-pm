@@ -71,14 +71,16 @@ Archive a completed change in the experimental workflow.
    instructions and concrete PRD-set paths from `artifactPaths`, verify the exact
    index/file match, and compare the recomputed deterministic manifest digest and
    file count with `product-approval.md`. Stop if approval is missing or stale.
-   For `agile-pm`, require the `master-prd` artifact and run the Approved master
-   preflight from the product-approval instructions: validate format 2, include
-   `master-prd.md` last in the manifest, and verify approved publication provenance.
-   A current master that is a valid later approved descendant is allowed; never
-   overwrite it with the revision being archived. If an older change lacks the
-   master or format-2 approval, stop and use `/opsx-pm <name>` to reconcile the
-   complete product and obtain explicit approval before archive. Archive cannot
-   grant publication authorization or synthesize an unreviewed master.
+   For `agile-pm`, require `product-docs` and `publication-plan`. Read the installed
+   schema's `workflows/product-publication.md` and run Approved product set preflight:
+   format 3, exact increment/candidate/MkDocs/plan manifest, plan hash, and full
+   current published baseline. A newer publication or changed MkDocs config requires
+   reconciliation and renewed approval, never silent overwrite. Legacy approvals
+   require migration through `/opsx-pm <name>`; preserve their original history.
+   Approval authorizes the proposed files; archive is their publication point.
+   Do not synthesize requirements, rewrite statuses, or choose system-capability
+   classification during archive. Return material delivery/acceptance differences
+   to PM for candidate revision and reapproval before any spec sync or publication.
    This is a workflow gate, not optional archive guidance, and cannot be overridden
    by confirmation merely because status reports the approval file as done.
 
@@ -94,7 +96,7 @@ Archive a completed change in the experimental workflow.
    and reject symlinks in any existing source or destination path component.
    Fail if `<planningHome.changesDir>/archive/<target-name>` exists.
    Never overwrite an archive. Existing dated product snapshots are historical;
-   archive does not create, overwrite, or otherwise modify them.
+   archive must preserve them while updating the cumulative product pages.
 
    **If any artifacts are neither `done` nor `skipped`** (skipped artifacts satisfy the requirement - the change declares skip_specs):
    - Display warning listing incomplete artifacts
@@ -155,20 +157,26 @@ Archive a completed change in the experimental workflow.
 
    If the sync failed, or any capability does not match, report what differs and stop — do not archive. Nothing has moved and `changeRoot` is intact, so the user can fix the mismatch or re-run the sync and start the archive again.
 
-5. **Verify approved product history**
+5. **Publish the approved cumulative product set**
 
-   For `agile-pm`, publication already happened at approval. Before moving
-   `changeRoot`, repeat the Approved master preflight using the current published
-   master in the selected planning home. Capture a raw-byte manifest of `prd.md`,
-   indexed capability PRDs, `master-prd.md`, `product-approval.md`, and all
-   `product-history/` records. Reject symlinks and paths escaping the change root.
-   Validate each historical snapshot with its recorded approval format (legacy
-   snapshots retain the old manifest algorithm). Stop on missing or invalid evidence.
+   For `agile-pm`, execute steps 1–6 of the Archive Publication Transaction in
+   `workflows/product-publication.md` before moving the change. Reconcile delivery
+   and acceptance claims, recheck the approved set and full baseline, acquire the
+   exclusive publication lock, and journal recoverable prior bytes/absences.
+   Capture the approved manifest, approval record, and every historical snapshot;
+   validate each with its original algorithm and reject symlinks/escaping paths.
 
-   Do not stage product publication, create a dated docs/product directory, append
-   a catalog row, or change the published master. Incomplete tasks or skipped spec
-   sync remain archive warnings, never evidence of deployed functionality.
-   Workflows without master-PRD publication skip this product-history step.
+   Stage and verify the exact reviewed overview, capabilities, system capabilities,
+   README, and complete MkDocs configuration. Validate links/navigation and the
+   staged site; disclose missing build tooling with a documented human closeout
+   decision, never a false build pass. Apply only approved mappings/removals,
+   preserve unrelated pages/site settings and historical catalog rows, and verify
+   the result before recording derived `.publication.json` provenance.
+
+   Keep the lock and journal until step 6 succeeds. No dated product copy or new
+   historical catalog row is created. Incomplete-task confirmation does not waive
+   product acceptance or authorize inaccurate delivery claims; revise/reapprove
+   candidates when required. Other schemas skip this publication step.
 
 6. **Perform the archive**
 
@@ -188,14 +196,16 @@ Archive a completed change in the experimental workflow.
    `mv` when any containment, identity, or symlink check is inconclusive. Do not
    rely on string-prefix path checks.
 
-   For `agile-pm`, verify the archived product files against the captured manifest,
-   recompute the PRD-set digest/count, and repeat the Approved master preflight with
-   the approval record now in the archive. Preserve every historical snapshot.
-   If verification fails, move the archived directory back to its original
-   `changeRoot` when that path is still absent; otherwise stop and report the
-   recovery conflict without overwriting anything. Report the failure and whether
-   main specs had already been synced. Never restore an older master as part of
-   archive rollback or report success with missing approval evidence.
+   For `agile-pm`, complete steps 7–8 of the shared Archive Publication Transaction:
+   verify the archived manifest/digest/history against the captured raw bytes and
+   verify published targets against the approved mapping and derived provenance.
+   The baseline intentionally changed during publication: validate the resulting
+   target hashes, not the old-baseline preflight, after this transaction's writes.
+   Only then commit the journal and release this invocation's lock/staging.
+   On any move or verification failure, restore the previous product pages, removed
+   files, MkDocs config, and provenance, and restore the change's original location
+   if still absent. Preserve recovery evidence/lock on an unverified rollback;
+   never overwrite a conflicting location. Report any earlier spec-sync effects.
 
 7. **Display summary**
 
@@ -204,7 +214,8 @@ Archive a completed change in the experimental workflow.
    - Schema that was used
    - Archive location
    - Spec sync status (synced / sync skipped / no delta specs)
-   - Master PRD path and verified approval history, or why this workflow has no master
+   - Product overview, capability/system-capability paths, MkDocs config, publication
+     verification and approval history, or why publication did not apply
    - Note about any warnings (incomplete artifacts/tasks)
 
 **Output On Success**
@@ -216,7 +227,8 @@ Archive a completed change in the experimental workflow.
 **Schema:** <schema-name>
 **Archived to:** the archive path derived from `planningHome.changesDir`/<target-name>/
 **Specs:** ✓ Synced to main specs
-**Product docs:** `docs/product/prd.md` (published at approval; history verified)
+**Product docs:** `docs/product/prd.md` and indexed capability/system-capability pages published at archive
+**MkDocs:** Approved navigation/configuration published; links and history verified
 
 All artifacts complete. All tasks complete.
 ```
@@ -230,7 +242,8 @@ All artifacts complete. All tasks complete.
 **Schema:** <schema-name>
 **Archived to:** the archive path derived from `planningHome.changesDir`/<target-name>/
 **Specs:** No delta specs
-**Product docs:** `docs/product/prd.md` (published at approval; history verified)
+**Product docs:** `docs/product/prd.md` and indexed capability/system-capability pages published at archive
+**MkDocs:** Approved navigation/configuration published; links and history verified
 
 All artifacts complete. All tasks complete.
 ```
@@ -244,7 +257,8 @@ All artifacts complete. All tasks complete.
 **Schema:** <schema-name>
 **Archived to:** the archive path derived from `planningHome.changesDir`/<target-name>/
 **Specs:** Sync skipped (user chose to skip)
-**Product docs:** `docs/product/prd.md` (published at approval; history verified)
+**Product docs:** `docs/product/prd.md` and indexed capability/system-capability pages published at archive
+**MkDocs:** Approved navigation/configuration published; links and history verified
 
 **Warnings:**
 - Archived with 2 incomplete artifacts
@@ -274,8 +288,8 @@ Target archive directory already exists.
 - Announce the selected change; prompt for selection when it is ambiguous
 - Use artifact graph (openspec status --json) for completion checking
 - Don't block archive on warnings - just inform and confirm
-- For a master-PRD workflow, warnings do not waive approval or provenance checks;
-  report them in the archive summary without changing the approved master
+- For agile-pm, warnings do not waive approval, baseline, publication, or recovery
+  checks; record incomplete delivery accurately and reapprove candidate changes
 - Preserve .openspec.yaml when moving to archive (it moves with the directory)
 - Show clear summary of what happened
 - If sync is requested, run the `/opsx-sync` workflow inline (agent-driven)
@@ -287,5 +301,5 @@ Target archive directory already exists.
 - Existing CLI checks, resolved paths, prompts, and command contracts are unchanged
 - Artifact rules constrain only the specs being written and are never operation guidance
 - Never copy runtime context, operation guidance, or artifact-rule text verbatim into output files
-- Archive preserves approved history; it never republishes a master or creates
-  dated product copies. Preserve legacy snapshots and catalog rows.
+- For agile-pm, archive publishes only the exact approved cumulative set and MkDocs configuration,
+  then preserves approval history. Preserve legacy snapshots and catalog rows.
