@@ -45,6 +45,13 @@ example, never as evidence or product-specific scope.
    clarify it with the human and revise the change-scoped requirements before
    approval; the diagram must not silently expand scope.
 
+During requirements elicitation/review, follow `workflows/requirements-analysis.md`.
+Link draft journey stages and flow branches to descriptive candidate requirement
+headings and proposed acceptance evidence. Gaps, conflicts, and unknown branches
+belong in the same draft's Requirements Analysis; clarify them with the human and
+revise affected views together. These links do not assign final requirement IDs,
+select delivery work, or turn an inferred behavior into confirmed intent.
+
 ## Markdown And Mermaid Conventions
 
 - During shaping, keep tables/Mermaid inside `openspec/product-drafts/<draft-id>.md`.

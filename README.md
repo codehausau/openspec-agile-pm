@@ -1,16 +1,16 @@
 # openspec-agile-pm
 
-Human-led product discovery, saved PRD shaping, capability requirements, and
+Human-led product discovery, saved PRD shaping, requirements elicitation/review, and
 approval-gated delivery for OpenSpec. The core workflow is client-neutral; an
 optional OpenCode adapter supplies commands and NanoPM-derived research skills.
 
 ## Current Release
 
-**[v0.5.0](https://github.com/codehausau/openspec-agile-pm/releases/tag/v0.5.0)**
-introduces **schema version 6 / approval format 3**: a multi-file product handbook
-published at archive time, with maintained MkDocs navigation. PM prepares the
-proposed documentation, approval authorizes it, delivery reconciles findings, and
-archive publishes the reviewed set. See the [release notes](CHANGELOG.md#050) and
+**[v0.6.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.6.0)**
+adds requirements elicitation and quality review in the living PRD through
+`/opsx-pm --requirements <draft-id>`, before explicit delivery scoping. It retains
+**schema version 6 / approval format 3**, with the reviewed product handbook and
+MkDocs navigation published at archive time. See the [release notes](CHANGELOG.md#060) and
 [migration guide](#migrating-existing-installations-and-prds).
 
 ## Requirements
@@ -50,7 +50,7 @@ existing approved change. No build or package `prepare` step is required.
 Pin a release tag or commit for reproducible installations. For a new installation:
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.5.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.6.0
 npx openspec-agile-pm init --client opencode --dry-run
 npx openspec-agile-pm init --client opencode
 ```
@@ -58,15 +58,16 @@ npx openspec-agile-pm init --client opencode
 For an existing managed installation:
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.5.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.6.0
 npx openspec-agile-pm update --dry-run
 npx openspec-agile-pm update
 npx openspec-agile-pm doctor
 npx openspec-agile-pm --version
 ```
 
-Verify the version is `0.5.0`, restart OpenCode, and follow the migration guide for
-existing approvals. v0.4.0 and older tags retain their historical workflows.
+Verify the version is `0.6.0` and restart OpenCode. Existing v0.5.0 drafts and
+format-3 approvals need no migration; follow the migration guide for older approvals.
+v0.4.0 and older tags retain their historical workflows.
 
 ## What It Installs
 
@@ -108,11 +109,17 @@ Common options: `--client opencode|none`, `--schema-only`, `--cwd <project-path>
 | **Archive** | Verify reviewed bytes and current baseline; publish pages/navigation; archive history | Exact approved files update the cumulative handbook |
 
 ```text
-idea -> product brief -> increment PRDs -> product-docs + publication-plan
+idea -> product shaping -> living PRD with journeys / flows / capabilities
+     -> requirements elicitation and analysis -> requirements quality review
+     -> explicit delivery scoping -> product brief -> increment PRDs
+     -> product-docs + publication-plan
      -> explicit approval -> proposal -> specs + design -> tasks -> apply
      -> delivery/acceptance reconciliation and reapproval if needed
      -> archive: verify baseline -> publish product set and MkDocs -> preserve history
 ```
+
+Exploration and review can repeat at the human's pace; direct delivery planning is
+still supported. A reviewed exploratory draft is neither an increment nor approval.
 
 The authoritative client-neutral contract is
 [`workflows/product-publication.md`](assets/openspec/schemas/agile-pm/workflows/product-publication.md).
@@ -212,6 +219,7 @@ layout checks are reported separately.
 | --- | --- |
 | `/pm-brainstorm <topic>` | Informal exploration; optional local research |
 | `/opsx-pm --shape <draft-id> [topic]` | Saved exploratory PRD without selecting delivery work |
+| `/opsx-pm --requirements <draft-id>` | Elicit and quality-review candidate requirements in an existing draft |
 | `/opsx-pm --from-draft <draft-id>` | Explicitly start selecting an increment from a draft |
 | `/opsx-pm <idea-or-change>` | Review and approve an increment and proposed documentation set |
 | `/opsx-propose <change>` | Engineering planning from the approved set |
@@ -235,6 +243,7 @@ delivery work. The shared contract is
 ```text
 /opsx-pm --shape product-vision Map the journey of an invited writer joining a project
 /opsx-pm --shape product-vision Explore accepting, declining, and invalid-invitation recovery
+/opsx-pm --requirements product-vision
 /opsx-pm --from-draft product-vision
 ```
 
@@ -245,11 +254,57 @@ move into the corresponding detailed capability/system-capability page and are
 covered by approval. See the [worked journey example](assets/openspec/schemas/agile-pm/examples/user-journeys.md)
 and [multi-file publication example](assets/openspec/schemas/agile-pm/examples/publication/README.md).
 
+### Requirements Elicitation And Quality Review
+
+Use `/opsx-pm --requirements <draft-id>` on an existing living draft. It acts as an
+AI-assisted requirements analyst: choose a capability, journey, or uncertainty with
+the human, elicit observable behavior, then perform a distinct quality-review pass.
+To review first, invoke the same mode and ask “Review the existing invitation
+requirements for ambiguities, conflicts, and gaps.” Resume the command to continue
+from the saved focus. These mode flags are mutually exclusive agent arguments,
+not installer or OpenSpec CLI flags; `--requirements` requires an existing draft ID.
+
+The same `openspec/product-drafts/<draft-id>.md` holds:
+
+- **Candidate Requirements** by capability: behavioral statement, rationale,
+  source/journey, proposed acceptance evidence, exploratory status, and open questions.
+- **Cross-Cutting Requirements** where relevant, including security, performance,
+  reliability, accessibility, data/retention, interoperability, and operating context.
+- **Requirements Analysis**: ambiguities, conflicts, missing information, unverified
+  assumptions, gaps, and a review summary with coverage and remaining questions.
+
+For example, “The system SHALL display valid geospatial records on the map” expresses
+behavior; validity and acceptance evidence may still need clarification. Frameworks,
+components, APIs, and implementation tasks belong to later engineering work. Unknown
+thresholds stay unknown; empty categories need no invented requirements. Sources and
+inferences remain distinct. `Human-confirmed intent` means an expressed preference,
+not approval, and SHALL wording does not make a candidate binding.
+
+Requirements analysis retains **Draft — unapproved** and `Mode: product-shaping`.
+It selects no MVP or increment, assigns no final change-scoped requirement IDs, and
+creates no delivery change, approval, published pages, or engineering artifacts.
+The shared contract is
+[`workflows/requirements-analysis.md`](assets/openspec/schemas/agile-pm/workflows/requirements-analysis.md);
+see the [fictional partial draft and review](assets/openspec/schemas/agile-pm/examples/requirements-analysis.md).
+Schema-only clients can follow that installed contract directly.
+
+Only an explicit delivery-scoping request, such as `/opsx-pm --from-draft <draft-id>`,
+starts selection. Review selected candidates and applicable shared constraints,
+dependencies, evidence, and open findings. Material scope/acceptance questions must
+be resolved before PRD approval. Capture the draft path/hash and selected headings;
+assign formal FR/NFR IDs in the detailed increment PRDs. Unselected ideas remain
+exploratory. Normal capture, pursue, full-set approval, and engineering handoff gates
+still apply, with publication at archive time.
+
+Existing drafts gain useful sections on resume, preserving their content. A managed
+bundle update installs the workflow/template/example without rewriting drafts or
+approval records. This additive workflow retains schema 6 and approval format 3.
+
 ## Migrating Existing Installations And PRDs
 
 This is a workflow migration, not a silent reinterpretation of earlier approvals.
 
-1. Install v0.5.0 (or this checkout) and run the
+1. Install v0.6.0 (or this checkout) and run the
    managed `update --dry-run`, `update`, and `doctor` commands. Restart OpenCode.
 2. Review custom repository instructions/configuration that still require a single
    master or immediate publication. The installer replaces its own contributions,
@@ -273,6 +328,21 @@ requirements; unaffected requirements carried into the handbook are product cont
 ## Workflow Smoke Test
 
 In a disposable consuming project:
+
+```text
+/opsx-pm --shape invitation-vision Explore an invited writer deciding whether to join
+/opsx-pm --requirements invitation-vision
+Review the invitation candidates for ambiguities, conflicts, missing evidence, and gaps.
+```
+
+Confirm only the living draft was saved, still unapproved. Leave validity or a
+performance threshold unknown; verify the review records the question without
+inventing an answer. Say “looks good”, then resume `--requirements`: it should
+continue analysis without creating a change, final IDs, approval, or publication.
+Try a missing draft and combined mode flags; both should stop before writes.
+Use `/opsx-pm --from-draft invitation-vision` explicitly, then select a subset with
+the human. Verify shared constraints and unresolved findings are reviewed and
+unselected candidates stay exploratory. Continue with the delivery smoke test:
 
 1. Create an increment with one user capability and one system capability. Review
    overview/detail separation, journeys/flows, stable IDs, and complete navigation.

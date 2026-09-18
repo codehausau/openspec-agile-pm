@@ -274,6 +274,8 @@ test("schema-only installs shaping resources and preserves saved drafts across u
   await install({ cwd: root, mode: "init" });
   const resources = [
     "openspec/schemas/agile-pm/workflows/product-shaping.md",
+    "openspec/schemas/agile-pm/workflows/requirements-analysis.md",
+    "openspec/schemas/agile-pm/examples/requirements-analysis.md",
     "openspec/schemas/agile-pm/templates/product-draft.md",
     "openspec/schemas/agile-pm/workflows/user-journeys.md",
     "openspec/schemas/agile-pm/examples/user-journeys.md",
@@ -300,6 +302,12 @@ test("schema-only installs shaping resources and preserves saved drafts across u
       "# Collaboration PRD Draft",
       "**Mode:** product-shaping",
       "**Status:** Draft — unapproved",
+      "## Candidate Requirements",
+      "### Show The Invitation Offer",
+      "- **Requirement:** The system SHALL show offered access before joining.",
+      "- **Status:** Needs clarification",
+      "## Requirements Analysis",
+      "Validity rules remain unknown; no increment has been selected.",
       "## Open Questions",
       "Should collaborators share a workspace or only selected documents?",
       "## Resume Here",
@@ -337,6 +345,96 @@ test("schema-only installs shaping resources and preserves saved drafts across u
     await assert.rejects(readFile(path.join(root, relative)), /ENOENT/);
   }
   for (const [relative, content] of Object.entries(documents)) {
+    assert.equal(await readFile(path.join(root, relative), "utf8"), content);
+  }
+});
+
+test("managed adapter update adds requirements assets and preserves consumer drafts and approvals", async (t) => {
+  const root = await temporaryProject(t);
+  await install({ cwd: root, client: "opencode", mode: "init" });
+  const manifestPath = path.join(root, "openspec/.agile-pm-install.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  const commandPath = ".opencode/commands/opsx-pm.md";
+  const templatePath = "openspec/schemas/agile-pm/templates/product-draft.md";
+  const resources = [
+    "openspec/schemas/agile-pm/workflows/requirements-analysis.md",
+    "openspec/schemas/agile-pm/examples/requirements-analysis.md",
+  ];
+  const expected = new Map();
+  for (const relative of [commandPath, templatePath, ...resources]) {
+    expected.set(relative, await readFile(path.join(root, relative), "utf8"));
+  }
+
+  // Model unchanged owned files from a bundle predating requirements analysis.
+  for (const [relative, content] of [
+    [commandPath, "---\ndescription: Shape or scope a product\nagent: build\n---\nUse --shape or --from-draft.\n"],
+    [templatePath, "# Product Draft\n\n**Mode:** product-shaping\n**Status:** Draft — unapproved\n\n## Open Questions\n"],
+  ]) {
+    await writeFile(path.join(root, relative), content);
+    manifest.files[relative] = createHash("sha256").update(content).digest("hex");
+  }
+  for (const relative of resources) {
+    await rm(path.join(root, relative));
+    delete manifest.files[relative];
+  }
+  const configPath = path.join(root, "openspec/config.yaml");
+  const config = YAML.parse(await readFile(configPath, "utf8"));
+  for (const id of ["product-brief", "prd-capabilities"]) {
+    config.rules[id] = config.rules[id].filter((rule) => !rule.includes("workflows/requirements-analysis.md"));
+    manifest.config.rulesAdded[id] = config.rules[id];
+  }
+  const consumerRule = "Preserve the human's product vocabulary.";
+  config.rules["product-brief"].push(consumerRule);
+  // The consumer rule is not part of the installer's historical contribution.
+  manifest.config.rulesAdded["product-brief"] = config.rules["product-brief"].filter((rule) => rule !== consumerRule);
+  await writeFile(configPath, YAML.stringify(config));
+  await writeFile(manifestPath, JSON.stringify(manifest));
+
+  const consumerFiles = {
+    "openspec/product-drafts/invitations.md": "# My existing draft\n\n## Open Questions\nWho may join?\n",
+    "openspec/changes/active/prd.md": "Existing increment and requirements.\n",
+    "openspec/changes/active/product-approval.md": "**Approval Format:** 3\nExisting approval bytes.\n",
+    "docs/product/prd.md": "Existing published overview.\n",
+    "mkdocs.yml": "site_name: Existing site\n",
+  };
+  for (const [relative, content] of Object.entries(consumerFiles)) {
+    await mkdir(path.dirname(path.join(root, relative)), { recursive: true });
+    await writeFile(path.join(root, relative), content);
+  }
+
+  await install({ cwd: root, mode: "update", dryRun: true });
+  await assert.rejects(readFile(path.join(root, resources[0])), /ENOENT/);
+  assert.doesNotMatch(await readFile(path.join(root, commandPath), "utf8"), /--requirements/);
+
+  await install({ cwd: root, mode: "update" });
+  const updated = JSON.parse(await readFile(manifestPath, "utf8"));
+  assert.equal(updated.client, "opencode");
+  for (const [relative, content] of expected) {
+    assert.equal(await readFile(path.join(root, relative), "utf8"), content);
+    assert.equal(updated.files[relative], createHash("sha256").update(content).digest("hex"));
+  }
+  const updatedConfig = YAML.parse(await readFile(configPath, "utf8"));
+  for (const id of ["product-brief", "prd-capabilities"]) {
+    assert.ok(updatedConfig.rules[id].some((rule) => rule.includes("workflows/requirements-analysis.md")));
+  }
+  assert.ok(updatedConfig.rules["product-brief"].includes(consumerRule));
+  for (const [relative, content] of Object.entries(consumerFiles)) {
+    assert.equal(updated.files[relative], undefined);
+    assert.equal(await readFile(path.join(root, relative), "utf8"), content);
+  }
+  const once = await readFile(configPath, "utf8");
+  await install({ cwd: root, mode: "update" });
+  assert.equal(await readFile(configPath, "utf8"), once);
+
+  const modifiedWorkflow = `${expected.get(resources[0])}\nConsumer elicitation guidance.\n`;
+  await writeFile(path.join(root, resources[0]), modifiedWorkflow);
+  await assert.rejects(install({ cwd: root, mode: "update" }), /Refusing to overwrite conflicting files/);
+  await uninstall({ cwd: root });
+  assert.equal(await readFile(path.join(root, resources[0]), "utf8"), modifiedWorkflow);
+  for (const relative of [commandPath, templatePath, resources[1]]) {
+    await assert.rejects(readFile(path.join(root, relative)), /ENOENT/);
+  }
+  for (const [relative, content] of Object.entries(consumerFiles)) {
     assert.equal(await readFile(path.join(root, relative), "utf8"), content);
   }
 });

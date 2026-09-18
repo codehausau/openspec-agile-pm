@@ -80,6 +80,13 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
 - Revise affected journey stages, flow branches, and candidate capabilities together
   as the conversation develops. Keep unresolved choices explicit, preserve unrelated
   views, and carry the relevant experience into the explicit handoff for human review.
+- When the human requests systematic requirements elicitation or quality review,
+  including `/opsx-pm --requirements <draft-id>`, follow
+  `workflows/requirements-analysis.md` in this installed schema. Keep candidates,
+  cross-cutting constraints, and analysis findings in the same living draft. This
+  activity remains exploratory product shaping, with no increment or approval.
+  On resume, honor the requirements-analysis focus recorded in `Resume Here`;
+  returning to broader shaping is also a valid human choice.
 - Use `Product Baseline SHA-256` to record the digest of all current product pages:
   overview, README, capability/system-capability Markdown, and `.publication.json`
   if present. Sort planning-root-relative paths bytewise, emit raw file SHA-256,
@@ -122,6 +129,12 @@ Only when the human explicitly requests delivery scoping, or uses
 2. Ask which candidate outcomes/capabilities belong in the next increment and
    which remain exploratory. A switch into scoping is not agreement to build the
    whole draft, approval to create a change, or approval to publish it.
+   If candidate requirements or analysis findings exist, follow the explicit
+   delivery handoff in `workflows/requirements-analysis.md`: review selected
+   behaviors, relevant shared constraints, dependencies, evidence, and open findings.
+   Map selected candidate headings to formal IDs only in the detailed increment
+   PRDs; keep unselected candidates unapproved. A completed requirements review is
+   neither required for scoping nor approval of the increment.
 3. Follow the existing product-brief and PRD review gates. Include the source draft
    path and raw-byte SHA-256 in the product brief for provenance, and capture the
    selected intent in the change-scoped PRDs. Later draft edits do not silently

@@ -24,6 +24,7 @@ context: |
 rules:
   product-brief:
     - Honor explicit product-shaping intent using workflows/product-shaping.md; saved drafts remain outside the delivery graph until an explicit scoping handoff.
+    - Honor requirements elicitation and quality-review intent using workflows/requirements-analysis.md; revise candidates and findings in the same unapproved draft without selecting an increment or starting delivery artifacts.
     - Separate known evidence, assumptions, and unknowns.
     - Compare alternatives, including doing nothing, before recommending work.
     - Ask the human focused, adaptive questions and confirm the brief represents their intent.
@@ -39,6 +40,7 @@ rules:
     - Capability PRDs define product intent and priority; OpenSpec specs define normative behavior and test scenarios.
     - Ask rather than guess when requirement intent, priority, acceptance, dependencies, risks, or exclusions are unclear.
     - Follow workflows/user-journeys.md for relevant journey/flow coverage; map product steps to requirements and acceptance outcomes without introducing scope in diagrams.
+    - At an explicit draft handoff, use workflows/requirements-analysis.md to map only human-selected candidates to formal IDs, retaining sources, acceptance intent, shared constraints, and safely deferred questions.
   product-docs:
     - Follow workflows/product-publication.md to prepare a high-level product-docs/prd.md and complete capabilities/ and system-capabilities/ pages before approval.
     - Preserve unaffected requirements and identities; integrate additions, modifications, and retirements and reconcile contradictory boundaries.

@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.6.0
+
+### Added
+
+- Client-neutral requirements elicitation and quality review in the living PRD,
+  exposed by the optional OpenCode adapter as `/opsx-pm --requirements <draft-id>`.
+- Candidate behavioral requirements, relevant cross-cutting constraints, source and
+  acceptance evidence, and explicit ambiguity/conflict/gap findings with review coverage.
+- Explicit candidate-to-increment handoff guidance, a fictional partial draft/review,
+  and contract/installer regression coverage. Unknowns and inferred suggestions
+  remain exploratory; review does not select scope or approve requirements.
+
+### Compatibility
+
+- Retains schema 6, approval format 3, and archive-time publication. Managed updates
+  install the new assets without rewriting existing drafts or product records;
+  useful draft sections are added on resume. Restart OpenCode after adapter updates.
+
+### Upgrade From 0.5.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.6.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+npx openspec-agile-pm --version
+```
+
+Restart OpenCode, then use `/opsx-pm --requirements <draft-id>` to elicit and review
+requirements in an existing draft. Existing format-3 approvals remain valid; the
+new activity does not select an increment or change approval/publication rules.
+
 ## 0.5.0
 
 ### Changed

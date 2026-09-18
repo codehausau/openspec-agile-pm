@@ -55,6 +55,77 @@ Sections may be partial; open questions and competing ideas are expected.
      user-preferred directions, alternatives, and agent suggestions. No exhaustive
      index, Must/Should/Could priorities, FR IDs, or technical breakdown is required. -->
 
+## Candidate Requirements
+
+<!-- Optional: use workflows/requirements-analysis.md to elicit and review behavior
+     in this same draft. Add only useful sections; unknowns may remain unknown.
+     Use stable descriptive headings, not final FR/NFR IDs or delivery priorities.
+     SHALL wording and human-confirmed intent do not approve requirements. -->
+
+### <!-- Capability name; link to its candidate capability -->
+
+#### Functional Requirements
+
+##### <!-- Stable candidate name -->
+
+- **Requirement:** <!-- Observable behavior, conditions/trigger and outcome where known -->
+- **Rationale:** <!-- User/system need; unknown if not yet understood -->
+- **Source / journey:** <!-- Evidence, human statement, journey/flow link, or explicitly unverified inference -->
+- **Acceptance evidence:** <!-- Proposed scenario/demonstration/measurement, not a claim it has passed -->
+- **Status:** <!-- Suggested | Needs clarification | Human-confirmed intent | Parked; all unapproved -->
+- **Open questions:** <!-- Link to unresolved questions/findings -->
+
+#### Quality / Constraint Requirements
+
+<!-- Use the same candidate fields for capability-specific concerns; link shared
+     concerns below rather than duplicating them. Do not invent targets. -->
+
+## Cross-Cutting Requirements
+
+<!-- Optional prompts, not a completeness checklist. Omit empty categories or leave
+     applicability explicitly unknown. Use the same candidate fields, with affected
+     capabilities/journeys and source. Never fabricate requirements to fill headings. -->
+
+### Security
+
+### Performance
+
+### Availability
+
+### Reliability
+
+### Accessibility
+
+### Auditability
+
+### Data And Retention
+
+### Interoperability
+
+### Deployment / Operating Environment
+
+## Requirements Analysis
+
+<!-- Optional quality review per workflows/requirements-analysis.md. For each finding,
+     link affected candidates/journeys, explain issue/consequence and basis, ask a
+     focused question or suggest a resolution, and record disposition:
+     Open | Resolved with human | Deferred with reason. Do not silently settle intent. -->
+
+### Ambiguities
+
+### Conflicts
+
+### Missing Information
+
+### Unverified Assumptions
+
+### Requirement Gaps
+
+### Review Summary
+
+<!-- Coverage/omissions, main findings, human decisions, remaining questions, next focus.
+     No issues identified within this coverage is not approval or delivery readiness. -->
+
 ## Boundaries And Trade-Offs
 
 <!-- Explore product constraints, exclusions, and competing goals. Unresolved choices
@@ -77,4 +148,5 @@ Sections may be partial; open questions and competing ideas are expected.
 ## Resume Here
 
 <!-- A concise summary of the latest discussion, what changed in the draft, and the
-     next useful product question. Keep this resumable rather than a chat transcript. -->
+     next useful product question. Record requirements-analysis focus when active so
+     resume continues that activity. Keep this resumable rather than a chat transcript. -->

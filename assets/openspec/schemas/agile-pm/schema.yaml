@@ -15,6 +15,14 @@ artifacts:
       after an explicit transition into delivery scoping. A source draft is evidence,
       not approved scope; record its path/hash and confirm the selected increment.
 
+      If the human requests requirements elicitation or quality review of a living
+      draft, follow workflows/requirements-analysis.md and stop delivery artifact
+      generation. Analyze candidates and findings in the same unapproved draft;
+      do not select an increment, create final requirement IDs, or infer approval.
+      At an explicit draft handoff, review selected candidates, applicable shared
+      constraints, acceptance evidence, and material unresolved findings with the
+      human. Requirements review is not approval or a mandatory delivery dependency.
+
       Act as a pragmatic product manager and turn the initial idea into a concise
       product brief. Ground it in repository evidence and existing product
       documents, starting with <planningHome.root>/docs/product/prd.md when present.
@@ -134,6 +142,12 @@ artifacts:
       the spiral. Downstream references must qualify each ID as
       `<change-name>#<capability-path>/FR-001` or
       `<change-name>#<capability-path>/NFR-001`.
+
+      When the increment comes from a living draft, follow the explicit handoff in
+      workflows/requirements-analysis.md. Map selected candidate headings to these
+      formal IDs here, preserving rationale, source, and acceptance intent. Review
+      splits/merges, applicable cross-cutting constraints, and safely deferred
+      questions; do not import unselected candidates or agent suggestions as scope.
 
       Resolve decisions that would materially change scope or acceptance before
       completing the PRD set. Label unvalidated targets as assumptions, and do
