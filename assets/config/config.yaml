@@ -77,6 +77,8 @@ operations:
   apply:
     guidance:
       - Preserve the PRD scope and human approval points while implementing.
+      - Follow workflows/task-review.md and end every task with a mandatory independent agent review, looping fixes until it passes, then prompt the human to accept, review it themselves, or request changes.
+      - Mark a task complete only after it has passed agent review and been accepted; the human may waive later prompts but never the agent review.
       - Reject stale PRD-set approval before implementation, including blocked or all-done task states.
       - Run Approved product set preflight from workflows/product-publication.md; require valid approval and a matching full published baseline, not publication of this increment.
       - Reconcile delivery and acceptance changes in the proposed product pages and reapprove when needed; do not publish pages or MkDocs during apply.

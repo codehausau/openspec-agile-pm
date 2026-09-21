@@ -523,8 +523,8 @@ artifacts:
       - Tasks should be small enough to complete in one session
       - Order tasks by dependency (what must be done first?)
       - Each task MUST state how to verify completion (a test, command,
-        observable behavior, or delivered artifact). Put the verification in
-        that task's checkbox description. Use a separate verification task only
+        observable behavior, or delivered artifact); the per-task apply review
+        re-runs it. Put the verification in that task's checkbox description. Use a separate verification task only
         when it checks broader integration or system behavior that spans
         multiple implementation tasks.
 
@@ -576,7 +576,10 @@ apply:
     instructions. Compare the digest and file count with product-approval.md.
     Pause for renewed product-owner approval if either differs. This preflight is
     required even when task status is blocked or all_done.
-    Read context files, work through pending tasks, mark complete as you go.
+    Read context files and work through pending tasks. Follow workflows/task-review.md:
+    each task ends with a mandatory independent agent review, repeated until it
+    passes, then a human prompt to accept, review it themselves, or request changes.
+    Mark a task complete only once it is accepted; never skip the agent review.
     Pause if you hit blockers or need clarification. If implementation feedback
     changes product intent or acceptance, update and reapprove the PRD set, then
     reconcile proposal, specs, design, and tasks before continuing. This feedback

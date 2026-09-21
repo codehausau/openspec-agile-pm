@@ -99,16 +99,35 @@ Implement tasks from an OpenSpec change.
 
 6. **Implement tasks (loop until done or blocked)**
 
+   For `agile-pm`, require and read
+   `<planningHome.root>/openspec/schemas/agile-pm/workflows/task-review.md` and stop
+   with a request for a bundle update if it is missing. Every task then ends in a
+   mandatory independent agent review and a human prompt, and is marked complete
+   only once accepted. Other schemas use the plain loop and mark each task complete
+   as they go.
+
    For each pending task:
    - Show which task is being worked on
    - Make the code changes required
    - Keep changes minimal and focused
-   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
+   - `agile-pm`: assemble the Task Record (files touched, verification actually run
+     and its result, deviations), then run the independent agent review. Fix blocking
+     findings and re-review until it passes, at most three rounds, or it escalates.
+     The task stays `- [ ]` throughout. Delegate the review to a fresh, read-only
+     subagent with the Task tool where available; otherwise disclose a
+     self-review (not independent).
+   - `agile-pm`: after a pass, prompt the human: accept and continue, accept and stop
+     prompting for the rest of this run, review it myself, or request changes.
+     Agent review stays mandatory. Silence or an ambiguous reply is not acceptance.
+   - Mark task complete in the tasks file: `- [ ]` → `- [x]` (for `agile-pm`, only
+     after acceptance)
    - Continue to next task
 
    **Pause if:**
    - Task is unclear → ask for clarification
    - Implementation reveals a design issue → suggest updating artifacts
+   - The reviewer escalates, or the third review round still has blocking findings → stop and present the findings and options
+   - The human chooses to review it themselves or requests changes → wait, then re-review
    - A task needs work beyond what the spec and tasks describe, or you are tempted to drop, narrow, defer, or accept exceptions to specified behavior to make it fit → surface the added scope and ask; do not absorb it silently
    - Error or blocker encountered → report and wait for guidance
    - User interrupts
@@ -128,11 +147,24 @@ Implement tasks from an OpenSpec change.
 
 Working on task 3/7: <task description>
 [...implementation happening...]
-✓ Task complete
+Agent review (independent): round 1 CHANGES REQUIRED, round 2 PASS
+✓ Task accepted
+```
 
-Working on task 4/7: <task description>
-[...implementation happening...]
-✓ Task complete
+For `agile-pm`, the prompt at the end of each task looks like:
+
+```
+### Task 3/7 passed agent review: <task description>
+
+**Files:** <paths changed for this task>
+**Verification:** <command or check> → <result>
+**Review:** PASS after 2 rounds (independent)
+**Advisory:** <findings, or none>
+
+1. Accept and continue
+2. Accept and stop prompting for the rest of this run
+3. Review it myself
+4. Request changes
 ```
 
 **Output On Completion**
@@ -148,6 +180,9 @@ Working on task 4/7: <task description>
 - [x] Task 1
 - [x] Task 2
 ...
+
+### Review Summary (agile-pm)
+<review rounds and independence per task, advisory and disputed findings, accepted deviations>
 
 All tasks complete! You can archive this change with `/opsx-archive`.
 ```
@@ -178,10 +213,12 @@ What would you like to do?
 - If task is ambiguous, pause and ask before implementing
 - If implementation reveals issues, pause and suggest artifact updates
 - Keep code changes minimal and scoped to each task
-- Update task checkbox immediately after completing each task
+- Update task checkbox immediately after completing each task (for `agile-pm`, immediately after it is accepted)
 - Pause on errors, blockers, or unclear requirements - don't guess
 - When a task needs work beyond what the spec describes, surface the added scope and pause - never silently narrow, defer, or simplify away specified behavior
-- Only mark a task `- [x]` when its specified behavior is fully implemented, not when it is partially done or deferred
+- Only mark a task `- [x]` when its specified behavior is fully implemented and, for `agile-pm`, it has passed agent review and been accepted; not when it is partially done, deferred, or awaiting review
+- For `agile-pm`, never skip the agent review, never let the implementer dismiss a blocking finding, and never treat silence as acceptance
+- For `agile-pm`, on resume treat an unchecked task with changes already in the working tree as in review, not pending
 - Use contextFiles from CLI output, don't assume specific file names
 - Do not use context or operation guidance as proof that a task is complete
 - Apply relevant project context; report conflicts with controlling workflow inputs

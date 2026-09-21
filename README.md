@@ -6,11 +6,11 @@ optional OpenCode adapter supplies commands and NanoPM-derived research skills.
 
 ## Current Release
 
-**[v0.6.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.6.0)**
-adds requirements elicitation and quality review in the living PRD through
-`/opsx-pm --requirements <draft-id>`, before explicit delivery scoping. It retains
-**schema version 6 / approval format 3**, with the reviewed product handbook and
-MkDocs navigation published at archive time. See the [release notes](CHANGELOG.md#060) and
+**[v0.7.0](https://github.com/codehausau/openspec-agile-pm/tree/v0.7.0)**
+adds a per-task review loop to `/opsx-apply`: every task ends in a mandatory
+independent agent review and a human prompt, and is checked off only once accepted.
+It retains **schema version 6 / approval format 3**, with the reviewed product handbook
+and MkDocs navigation published at archive time. See the [release notes](CHANGELOG.md#070) and
 [migration guide](#migrating-existing-installations-and-prds).
 
 ## Requirements
@@ -50,7 +50,7 @@ existing approved change. No build or package `prepare` step is required.
 Pin a release tag or commit for reproducible installations. For a new installation:
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.6.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.7.0
 npx openspec-agile-pm init --client opencode --dry-run
 npx openspec-agile-pm init --client opencode
 ```
@@ -58,15 +58,15 @@ npx openspec-agile-pm init --client opencode
 For an existing managed installation:
 
 ```bash
-npm install --save-dev github:codehausau/openspec-agile-pm#v0.6.0
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.7.0
 npx openspec-agile-pm update --dry-run
 npx openspec-agile-pm update
 npx openspec-agile-pm doctor
 npx openspec-agile-pm --version
 ```
 
-Verify the version is `0.6.0` and restart OpenCode. Existing v0.5.0 drafts and
-format-3 approvals need no migration; follow the migration guide for older approvals.
+Verify the version is `0.7.0` and restart OpenCode. Existing v0.5.0 and v0.6.0 drafts
+and format-3 approvals need no migration; follow the migration guide for older approvals.
 v0.4.0 and older tags retain their historical workflows.
 
 ## What It Installs
@@ -120,6 +120,18 @@ idea -> product shaping -> living PRD with journeys / flows / capabilities
 
 Exploration and review can repeat at the human's pace; direct delivery planning is
 still supported. A reviewed exploratory draft is neither an increment nor approval.
+
+### Per-Task Review During Apply
+
+Each task ends in a mandatory independent agent review: a fresh, read-only reviewer
+checks the task against its cited PRD requirements, spec scenarios, design, and stated
+verification. Blocking findings are fixed and re-reviewed, at most three rounds, until
+it passes or escalates. The human is then prompted to accept, accept and stop
+prompting for the rest of the run, review it themselves, or request changes. A task
+is checked off in `tasks.md` only once accepted. Agent review cannot be waived; human
+prompts can. See
+[`workflows/task-review.md`](assets/openspec/schemas/agile-pm/workflows/task-review.md).
+This is a prompt-level contract, like the rest of the workflow, not CLI enforcement.
 
 The authoritative client-neutral contract is
 [`workflows/product-publication.md`](assets/openspec/schemas/agile-pm/workflows/product-publication.md).
@@ -224,7 +236,7 @@ layout checks are reported separately.
 | `/opsx-pm <idea-or-change>` | Review and approve an increment and proposed documentation set |
 | `/opsx-propose <change>` | Engineering planning from the approved set |
 | `/opsx-update <change>` | Reconcile existing engineering artifacts after reapproval |
-| `/opsx-apply <change>` | Implement approved tasks; return product discoveries for review |
+| `/opsx-apply <change>` | Implement approved tasks with a per-task agent review and human prompt; return product discoveries for review |
 | `/opsx-archive <change>` | Publish the reconciled approved product set and archive history |
 
 PM research skills (`pm-discovery`, `pm-opportunities`, `pm-solutions`,
@@ -304,7 +316,7 @@ approval records. This additive workflow retains schema 6 and approval format 3.
 
 This is a workflow migration, not a silent reinterpretation of earlier approvals.
 
-1. Install v0.6.0 (or this checkout) and run the
+1. Install v0.7.0 (or this checkout) and run the
    managed `update --dry-run`, `update`, and `doctor` commands. Restart OpenCode.
 2. Review custom repository instructions/configuration that still require a single
    master or immediate publication. The installer replaces its own contributions,

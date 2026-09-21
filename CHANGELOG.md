@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.7.0
+
+### Added
+
+- Per-task review loop during apply (`workflows/task-review.md`). Every task ends in a
+  mandatory independent agent review, repeated until it passes or escalates, then a
+  human prompt to accept, accept and stop prompting, review it themselves, or request
+  changes. Agent review cannot be waived; human prompts can.
+- Contract tests for the review loop, and the `apply` schema instruction, apply
+  operation guidance, and `/opsx-apply` command now reference it.
+
+### Changed
+
+- `/opsx-apply` marks a task `- [x]` only after it is accepted, not as soon as it is
+  implemented. On resume, an unchecked task with changes already in the working tree
+  is treated as in review.
+- Task verification statements are now also what the per-task reviewer re-runs.
+
+### Compatibility
+
+- Schema version 6, approval format 3, and the artifact graph are unchanged. Other
+  schemas keep the previous apply loop. Restart OpenCode after updating.
+
+### Upgrade From 0.6.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.7.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+npx openspec-agile-pm --version
+```
+
+Restart OpenCode. Existing drafts and approvals are untouched. From the next
+`/opsx-apply`, each task ends in an agent review and a human prompt. To skip later
+prompts in a run, choose "accept and stop prompting"; agent review always runs.
+
 ## 0.6.0
 
 ### Added
