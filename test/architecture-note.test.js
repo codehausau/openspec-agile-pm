@@ -51,6 +51,66 @@ test("the note stays exploratory, outside every approval and delivery boundary",
   assert.match(section, /reconcile concurrent human edits/);
 });
 
+test("accepting starts a discussion, and saving is a second, separate consent", async () => {
+  const section = noteSection(await schemaText(WORKFLOW));
+
+  assert.match(section, /When the human accepts, discuss before writing anything/);
+  assert.match(section, /ask one\s+focused question at a time, surface more than one approach/);
+  assert.match(section, /name the\s+technologies, interfaces, and operational constraints/);
+  assert.match(section, /Never present a preference as a\s+settled choice/);
+  assert.match(section, /`\/opsx-explore` is the existing thinking mode/);
+  assert.match(section, /Offer to save only once the discussion has something worth keeping/);
+  assert.match(section, /changes nobody's\s+mind is still a successful outcome/);
+
+  // Discussion comes before any write step.
+  const discuss = section.indexOf("discuss before writing anything");
+  const save = section.indexOf("When the human asks to save it:");
+  const destination = section.indexOf("Resolve the destination before writing");
+  assert.ok(discuss !== -1 && save !== -1 && destination !== -1);
+  assert.ok(discuss < save && save < destination, "discuss, then ask to save, then write");
+});
+
+test("both offer points reach the same shared step", async () => {
+  const workflow = await schemaText(WORKFLOW);
+  const section = noteSection(workflow);
+  assert.match(section, /This step is\s+shared by two offer points/);
+  assert.match(section, /At the end of a shaping session/);
+  assert.match(section, /At the delivery PM handoff, once approval passes/);
+  assert.match(section, /offered at most once per session/);
+
+  // Delivery mode previously never reached this step at all.
+  const command = await readFile(path.join(ASSETS, "opencode/commands/opsx-pm.md"), "utf8");
+  const delivery = command.slice(command.indexOf("The remaining sections apply only to delivery mode"));
+  assert.match(delivery, /offer the optional\s+architecture step once/);
+  assert.match(delivery, /workflows\/product-shaping\.md/);
+  assert.match(delivery, /Discuss first and save only if asked/);
+  assert.match(delivery, /Name `\/opsx-explore <name>` for deeper free-form investigation/);
+  assert.match(delivery, /Create, edit, and skip no engineering artifact here/);
+
+  const preflight = delivery.indexOf("Approved product set preflight");
+  const offer = delivery.indexOf("offer the optional");
+  const handoff = delivery.indexOf("run `/opsx-propose <name>`");
+  assert.ok(preflight !== -1 && offer !== -1 && handoff !== -1);
+  assert.ok(preflight < offer && offer < handoff, "approval, then offer, then engineering handoff");
+});
+
+test("a saved note is read back as design input without becoming approved scope", async () => {
+  const schema = YAML.parse(await schemaText("schema.yaml"));
+  const design = schema.artifacts.find(({ id }) => id === "design");
+
+  assert.match(design.instruction, /architecture note for this work exists under docs\/architecture\//);
+  assert.match(design.instruction, /treat it as prior discussion with the human/);
+  assert.match(design.instruction, /cite its path in Context/);
+  assert.match(design.instruction, /exploratory input, not approved scope or a\s+decision/);
+  assert.match(design.instruction, /prefer the PRD set wherever they disagree/);
+  assert.match(design.instruction, /never create or edit one from this artifact/);
+
+  // The note is an input, not a dependency: the graph is untouched.
+  assert.deepEqual(design.requires, [
+    "proposal", "product-approval", "prd", "prd-capabilities", "product-docs", "publication-plan",
+  ]);
+});
+
 test("the note is Markdown with checked Mermaid diagrams and text equivalents", async () => {
   const section = noteSection(await schemaText(WORKFLOW));
 

@@ -262,11 +262,16 @@ delivery work. The shared contract is
 
 ### Optional Architecture Note
 
-Sometimes the artifact you want after a shaping session is the technical sketch, not
-a delivery increment. At the end of a session shaping offers — once, and only when
-the draft has enough shape — to write `docs/architecture/<note-id>.md`: the technical
-question, candidate approaches, trade-offs, and the unknowns that would decide
-between them. Declining is the default; silence or "looks good" is not consent.
+Sometimes what you want next is the technical shape, not a delivery increment. The
+step is offered once at each of two points: the end of a shaping session, and the
+delivery PM handoff after approval passes and before the engineering handoff.
+Declining is the default; silence or "looks good" is not consent.
+
+Accepting starts a **discussion** — approaches, technologies, trade-offs, and the
+unknowns that would decide between them, one focused question at a time — and only
+saves `docs/architecture/<note-id>.md` if you ask. `/opsx-explore` remains the deeper
+free-form thinking mode. A saved note is read back as input when `design.md` is
+written, so engineering planning continues the conversation instead of restarting it.
 
 The note is Markdown with embedded Mermaid — `flowchart`, `sequenceDiagram`, or
 `stateDiagram-v2` for component boundaries, interaction sequences, topology, or

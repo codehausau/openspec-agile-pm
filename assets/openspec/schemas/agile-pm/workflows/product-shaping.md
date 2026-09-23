@@ -116,12 +116,15 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
 ## Optional Architecture Note
 
 Shaping explores the product; it does not choose an implementation. Some humans want
-a technical sketch next rather than a delivery increment. Offer that once at the end
-of a session, after the draft path and the next product question:
+to work through the technical shape next rather than move straight on. This step is
+shared by two offer points, and is offered at most once per session:
 
-> Optional: I can write an architecture note for this draft — candidate approaches
-> and trade-offs in `docs/architecture/<note-id>.md`. It is exploratory, not a design
-> artifact, an increment, or approval. Want one?
+- At the end of a shaping session, after the draft path and the next product question.
+- At the delivery PM handoff, once approval passes and before the engineering handoff.
+
+> Optional: we can work through the architecture for this — approaches, technologies,
+> and trade-offs — and I can record the outcome in `docs/architecture/<note-id>.md`.
+> It is exploratory, not a design artifact, an increment, or approval. Want to?
 
 Offer it; never assume it. Silence, "looks good", or continuing the product
 conversation declines. Do not repeat the offer every turn, re-offer after a decline
@@ -129,7 +132,23 @@ in the same session, or make it a condition of ending a session. Staying in shap
 with no note is a successful outcome. Skip the offer when the draft has no candidate
 capability or boundary with a technical shape yet, and ask a product question instead.
 
-When the human accepts:
+When the human accepts, discuss before writing anything:
+
+- Work through the technical question the way shaping works through product: ask one
+  focused question at a time, surface more than one approach, and name the
+  technologies, interfaces, and operational constraints each approach would commit
+  to. Ground the options in the repository rather than in theory.
+- Separate what the code already does, what the human has decided, what is an
+  assumption, and what is your own suggestion. Never present a preference as a
+  settled choice or invent benchmarks, costs, throughput, or operational experience.
+- Leave competing options open while the human is still weighing them. For deeper
+  free-form investigation, `/opsx-explore` is the existing thinking mode; coming back
+  here to record the outcome is fine.
+- Offer to save only once the discussion has something worth keeping. The human may
+  keep talking, save, or stop with no note at all. A discussion that changes nobody's
+  mind is still a successful outcome.
+
+When the human asks to save it:
 
 1. Resolve the destination before writing. Default to
    `<planningHome.root>/docs/architecture/<note-id>.md`. When the planning home is a

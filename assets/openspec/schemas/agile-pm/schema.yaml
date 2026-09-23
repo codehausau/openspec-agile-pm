@@ -461,6 +461,14 @@ artifacts:
       keep it brief and state when no significant design decision or migration
       is needed.
 
+      If an architecture note for this work exists under docs/architecture/, read it
+      before writing and treat it as prior discussion with the human: carry forward
+      the approaches, technologies, trade-offs, and constraints they worked through,
+      and cite its path in Context. It is exploratory input, not approved scope or a
+      decision. Confirm what it left open instead of promoting a candidate approach
+      into a settled one, and prefer the PRD set wherever they disagree. Its absence
+      is normal; never create or edit one from this artifact.
+
       Sections:
       - **Context**: Only the current state and constraints needed to explain the approach. Reference the proposal for motivation instead of restating it (e.g., "See proposal.md - Why").
       - **Goals / Non-Goals**: What this design achieves and explicitly excludes. Don't restate the proposal's scope - add only design-level boundaries.

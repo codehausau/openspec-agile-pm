@@ -1,5 +1,48 @@
 # Changelog
 
+## 0.9.0
+
+### Added
+
+- The optional architecture step is now offered in **delivery mode**, at the PM
+  handoff in `/opsx-pm` step 9: after Approved product set preflight passes and
+  before the handoff to `/opsx-propose`. In 0.8.x it existed only at the end of a
+  `/opsx-pm --shape` session, so a delivery-mode run never reached it. Step 9 also
+  names `/opsx-explore` for deeper free-form investigation.
+- `design.md` reads an existing `docs/architecture/` note as prior discussion,
+  carrying forward its approaches, technologies, trade-offs, and constraints and
+  citing its path in Context. The note is input, not a dependency: the artifact graph
+  and `design.requires` are unchanged, its absence is normal, and the PRD set wins
+  wherever they disagree.
+
+### Changed
+
+- Accepting the step now starts a **discussion** — one focused question at a time,
+  more than one approach, the technologies and operational constraints each would
+  commit to, grounded in the repository — and saves only when the human asks.
+  Saving is a second, separate consent. In 0.8.x acceptance went straight to writing
+  a document.
+- The step is a single shared contract with two offer points, offered at most once
+  per session.
+
+### Compatibility
+
+- Schema version 6, approval format 3, and the artifact graph are unchanged. Existing
+  drafts, changes, approvals, and published records are untouched. Restart OpenCode
+  after updating.
+
+### Upgrade From 0.8.1
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.9.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+```
+
+Restart OpenCode. A delivery-mode `/opsx-pm` run now offers the step once after
+approval, before telling you to run `/opsx-propose`.
+
 ## 0.8.1
 
 ### Changed

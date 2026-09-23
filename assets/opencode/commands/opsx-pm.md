@@ -185,10 +185,18 @@ The remaining sections apply only to delivery mode.
    specs, design, tasks, or code in this PM workflow.
 9. When Approved product set preflight from `workflows/product-publication.md` passes,
    including the full reviewed digest and baseline, report the PM
-   handoff as complete. Tell the user to
+   handoff as complete. Then, before the engineering handoff, offer the optional
+   architecture step once: ask whether the user wants to work through the
+   architecture and technology choices now. Follow the Optional Architecture Note
+   section of `workflows/product-shaping.md` for that discussion, its save, and its
+   boundaries. Discuss first and save only if asked; the note is exploratory, covered
+   by no approval, and is not a `design.md`. Declining is the default and a decline is
+   not re-offered. Name `/opsx-explore <name>` for deeper free-form investigation.
+   Create, edit, and skip no engineering artifact here. Tell the user to
    run `/opsx-propose <name>` and choose to continue the existing change; OpenSpec
    will then generate the engineering proposal, specs, design, and tasks from the
-   approved PRD set. Implementation still requires a later `/opsx-apply <name>`.
+   approved PRD set, reading any saved architecture note as design input.
+   Implementation still requires a later `/opsx-apply <name>`.
 
 For an existing change, first inspect its actual artifact files and conversation
 context. If a review is pending, review or revise the existing artifact instead
