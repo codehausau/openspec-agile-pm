@@ -62,6 +62,9 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
   clearly marked as unverified when appropriate. Do not choose architecture,
   technology stacks, APIs, estimates, tasks, or implementation sequences. Record
   engineering questions for later rather than turning them into technical scope.
+  The optional architecture note below is the one place those questions may be
+  explored as options, and only when the human asks for it; the draft itself stays
+  product-level.
 - Update the draft after meaningful conversation turns and before pausing. The
   request for a living draft authorizes these incremental saves; do not add a
   repeated approval prompt for every edit. Summarize what changed so the human can
@@ -107,12 +110,58 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
 - End a session with the draft path, the changes captured, and the next useful
   product question. Staying in shaping mode is a successful outcome. Do not prompt
   for approval or technical planning merely because the template has been filled.
+  Offer the optional architecture note below when the draft has enough shape to have
+  one; that offer is not a prompt for approval, an increment, or delivery planning.
+
+## Optional Architecture Note
+
+Shaping explores the product; it does not choose an implementation. Some humans want
+a technical sketch next rather than a delivery increment. Offer that once at the end
+of a session, after the draft path and the next product question:
+
+> Optional: I can write an architecture note for this draft — candidate approaches
+> and trade-offs in `docs/architecture/<note-id>.md`. It is exploratory, not a design
+> artifact, an increment, or approval. Want one?
+
+Offer it; never assume it. Silence, "looks good", or continuing the product
+conversation declines. Do not repeat the offer every turn, re-offer after a decline
+in the same session, or make it a condition of ending a session. Staying in shaping
+with no note is a successful outcome. Skip the offer when the draft has no candidate
+capability or boundary with a technical shape yet, and ask a product question instead.
+
+When the human accepts:
+
+1. Resolve the destination before writing. Default to
+   `<planningHome.root>/docs/architecture/<note-id>.md`. When the planning home is a
+   standalone store separate from the repository being designed, ask which root
+   should hold the note instead of guessing. Validate `<note-id>` with the draft-ID
+   rules above and never write outside the resolved directory.
+2. Record the source draft path, its raw-byte SHA-256, and
+   `**Status:** Exploratory — unapproved`. A note is not a `design.md`, an OpenSpec
+   artifact, or a published product page, and never enters the PRD-set manifest or
+   any approval digest.
+3. Describe the technical question, the candidate approaches with their trade-offs,
+   the constraints and unknowns that would decide between them, and what would have
+   to be true for each to work. Prefer options to a single answer; give a
+   recommendation only when asked, and mark it as the agent's view, not a decision.
+4. Reference the candidate capability or requirement headings each approach has to
+   support. If the note exposes product behavior the draft does not cover, raise it
+   as a product question and revise the draft with the human. A note must never add
+   scope the product conversation has not agreed.
+5. Read existing bytes first, reconcile concurrent human edits, use a staged verified
+   replacement, and never report a save that failed.
+
+A note selects no delivery work, assigns no requirement IDs, approves nothing, and
+authorizes no code. It is evidence for a later `design.md`, which still requires the
+approved PRD set and the normal engineering gates. When the draft or the note changes
+so that they disagree, raise it with the human rather than silently rewriting either.
 
 ## Boundaries And Explicit Handoff
 
-Shaping writes only the selected draft and any temporary file needed for its safe
-save. It must not create or revise delivery artifacts, remove an existing approval,
-publish product pages, update a product catalog/MkDocs config, or change application code.
+Shaping writes only the selected draft, an accepted architecture note, and any
+temporary file needed for their safe save. It must not create or revise delivery
+artifacts, remove an existing approval, publish product pages, update a product
+catalog/MkDocs config, or change application code.
 Opening an approved product or an active change as context grants no edit authority
 over those records. A draft may remain unfinished indefinitely.
 

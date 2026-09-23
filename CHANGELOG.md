@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.8.0
+
+### Added
+
+- Optional architecture note at the end of a shaping session
+  (`workflows/product-shaping.md`). Shaping offers once, and only when the draft has
+  enough shape, to write `docs/architecture/<note-id>.md` with the technical question,
+  candidate approaches, their trade-offs, and the unknowns that would decide between
+  them. The note is **Exploratory — unapproved**: it is not a `design.md`, never
+  enters the PRD-set manifest or any approval digest, and authorizes no code. It is
+  evidence for a later `design.md`, which still requires the approved PRD set.
+- Contract tests for the offer, its write and approval boundaries, and adapter ordering.
+
+### Changed
+
+- `/opsx-pm --shape` offers the note between reporting the saved draft and stopping.
+  Its closing boundary now names delivery artifacts (specs, design, tasks) rather than
+  "technical artifacts", which the note would otherwise contradict.
+- Shaping may write an accepted note in addition to the draft. Requirements analysis
+  keeps its stricter draft-only write boundary.
+
+### Compatibility
+
+- Schema version 6, approval format 3, and the artifact graph are unchanged. The note
+  lives outside the delivery graph, so existing drafts, changes, approvals, and
+  published product records are untouched. Restart OpenCode after updating.
+
+### Upgrade From 0.7.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.8.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+npx openspec-agile-pm --version
+```
+
+Restart OpenCode. From the next `/opsx-pm --shape`, a session that ends with enough
+shape offers the note once. Declining is the default; silence is not consent, and a
+decline is not re-offered in the same session.
+
 ## 0.7.0
 
 ### Added

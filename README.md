@@ -111,6 +111,7 @@ Common options: `--client opencode|none`, `--schema-only`, `--cwd <project-path>
 ```text
 idea -> product shaping -> living PRD with journeys / flows / capabilities
      -> requirements elicitation and analysis -> requirements quality review
+     -> optional architecture note (offered, never assumed)
      -> explicit delivery scoping -> product brief -> increment PRDs
      -> product-docs + publication-plan
      -> explicit approval -> proposal -> specs + design -> tasks -> apply
@@ -258,6 +259,19 @@ delivery work. The shared contract is
 /opsx-pm --requirements product-vision
 /opsx-pm --from-draft product-vision
 ```
+
+### Optional Architecture Note
+
+Sometimes the artifact you want after a shaping session is the technical sketch, not
+a delivery increment. At the end of a session shaping offers — once, and only when
+the draft has enough shape — to write `docs/architecture/<note-id>.md`: the technical
+question, candidate approaches, trade-offs, and the unknowns that would decide
+between them. Declining is the default; silence or "looks good" is not consent.
+
+The note is **Exploratory — unapproved**. It is not a `design.md`, never enters the
+PRD-set manifest or any approval digest, and authorizes no code. It is evidence for a
+later `design.md`, which still requires the approved PRD set and the normal
+engineering gates.
 
 Journey tables describe goals/stages/touchpoints/evidence; inline Mermaid flows
 describe task decisions, alternatives, failure, and recovery with text equivalents.

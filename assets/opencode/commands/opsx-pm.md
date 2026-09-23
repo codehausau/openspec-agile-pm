@@ -88,8 +88,12 @@ For requested or useful journeys and flows, follow the installed
 journey tables and Mermaid source in the draft, with text equivalents, and revise
 affected views with the product conversation. This remains shaping, not technical planning.
 Apply the contract's baseline-drift and concurrent-edit checks. Report the saved
-path and next product question. Stop here: do not run the delivery workflow,
-scaffold a change, publish product pages, or generate technical artifacts.
+path and next product question, then follow the contract's optional architecture
+note: offer it once when the draft has enough shape, and write
+`docs/architecture/<note-id>.md` only if the human accepts. The note is exploratory,
+covered by no approval, and is not a `design.md`. Stop here: do not run the delivery
+workflow, scaffold a change, publish product pages, or generate delivery artifacts
+such as specs, design, or tasks.
 
 For `--from-draft`, require and read the existing draft, then follow the contract's
 explicit handoff before entering delivery step 2. First ask which product outcomes
