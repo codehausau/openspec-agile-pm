@@ -144,12 +144,35 @@ When the human accepts:
    the constraints and unknowns that would decide between them, and what would have
    to be true for each to work. Prefer options to a single answer; give a
    recommendation only when asked, and mark it as the agent's view, not a decision.
-4. Reference the candidate capability or requirement headings each approach has to
+4. Write the note as Markdown. Include at least one diagram whenever it describes
+   structure or interaction — component boundaries and dependencies, the sequence
+   across a transport or process, deployment topology, or lifecycle state. Use a
+   fenced `mermaid` block with `flowchart TD`/`flowchart LR`, `sequenceDiagram`, or
+   `stateDiagram-v2`, quoted plain-text labels, and a short text equivalent after
+   each diagram so the note stays readable unrendered. Check the syntax and say
+   whether rendering was also checked. Diagram the approaches being compared rather
+   than a settled design; when two approaches differ structurally, give each its own
+   diagram instead of blending them. A diagram must not introduce a component,
+   interface, or behavior the note's prose does not state.
+5. Reference the candidate capability or requirement headings each approach has to
    support. If the note exposes product behavior the draft does not cover, raise it
    as a product question and revise the draft with the human. A note must never add
    scope the product conversation has not agreed.
-5. Read existing bytes first, reconcile concurrent human edits, use a staged verified
+6. Read existing bytes first, reconcile concurrent human edits, use a staged verified
    replacement, and never report a save that failed.
+
+A compact structural sketch, using the same fictional product as the other examples
+in this bundle and carrying no product-specific scope:
+
+```mermaid
+flowchart LR
+  A["Web client"] -->|"invite request"| B["Invitation service"]
+  B --> C["Identity provider"]
+  B --> D["Notification queue"]
+```
+
+Text equivalent: the web client sends an invite request to the invitation service,
+which checks the identity provider and enqueues a notification.
 
 A note selects no delivery work, assigns no requirement IDs, approves nothing, and
 authorizes no code. It is evidence for a later `design.md`, which still requires the

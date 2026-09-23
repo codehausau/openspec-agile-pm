@@ -51,6 +51,26 @@ test("the note stays exploratory, outside every approval and delivery boundary",
   assert.match(section, /reconcile concurrent human edits/);
 });
 
+test("the note is Markdown with checked Mermaid diagrams and text equivalents", async () => {
+  const section = noteSection(await schemaText(WORKFLOW));
+
+  assert.match(section, /Write the note as Markdown/);
+  assert.match(section, /Include at least one diagram whenever it describes/);
+  for (const type of ["flowchart TD", "sequenceDiagram", "stateDiagram-v2"]) {
+    assert.ok(section.includes(type), `architecture needs ${type}, not only user-flow charts`);
+  }
+  assert.match(section, /text equivalent after\s+each diagram/);
+  assert.match(section, /say\s+whether rendering was also checked/);
+  assert.match(section, /give each its own\s+diagram instead of blending them/);
+  assert.match(section, /must not introduce a component,\s+interface, or behavior the note's prose does not state/);
+
+  // A worked example the agent can imitate; diagrams.test.js parses it for real.
+  const diagrams = [...section.matchAll(/^[ \t]*```mermaid[ \t]*\r?\n([\s\S]*?)^[ \t]*```[ \t]*\r?$/gm)];
+  assert.equal(diagrams.length, 1, "one embedded example");
+  assert.match(diagrams[0][1], /^flowchart /m, "kept a flowchart so diagrams.test.js stays unchanged");
+  assert.match(section, /Text equivalent: the web client sends an invite request/);
+});
+
 test("the note is an extra permitted write, not a new delivery artifact", async () => {
   const workflow = await schemaText(WORKFLOW);
   assert.match(workflow, /Shaping writes only the selected draft, an accepted architecture note/);

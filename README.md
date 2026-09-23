@@ -268,6 +268,12 @@ the draft has enough shape — to write `docs/architecture/<note-id>.md`: the te
 question, candidate approaches, trade-offs, and the unknowns that would decide
 between them. Declining is the default; silence or "looks good" is not consent.
 
+The note is Markdown with embedded Mermaid — `flowchart`, `sequenceDiagram`, or
+`stateDiagram-v2` for component boundaries, interaction sequences, topology, or
+lifecycle state — and a text equivalent after each diagram. Structurally different
+approaches get their own diagram, and a diagram never introduces a component or
+behavior the prose does not state.
+
 The note is **Exploratory — unapproved**. It is not a `design.md`, never enters the
 PRD-set manifest or any approval digest, and authorizes no code. It is evidence for a
 later `design.md`, which still requires the approved PRD set and the normal

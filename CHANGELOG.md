@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.8.1
+
+### Changed
+
+- The optional architecture note is now explicitly Markdown with embedded Mermaid.
+  It asks for at least one diagram whenever the note describes structure or
+  interaction, permits `flowchart`, `sequenceDiagram`, and `stateDiagram-v2` rather
+  than only user-flow charts, and requires a text equivalent after each diagram plus
+  a syntax check. Structurally different approaches get their own diagram, and a
+  diagram may not introduce a component, interface, or behavior the prose does not
+  state. As released in 0.8.0 the note asked only for prose.
+- Added a worked flowchart example to imitate, using the same fictional product as
+  the bundle's other examples. `test/diagrams.test.js` parses it with the real
+  Mermaid parser; it stays a flowchart so that test's assertion is unchanged.
+
+### Compatibility
+
+- Schema version 6, approval format 3, and the artifact graph are unchanged. Nothing
+  outside `workflows/product-shaping.md` and the README changed. Restart OpenCode
+  after updating.
+
+### Upgrade From 0.8.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.8.1
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+```
+
 ## 0.8.0
 
 ### Added
