@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.10.0
+
+### Added
+
+- `/opsx-architect <note-id> [topic]` starts an architecture discussion directly, with
+  no product draft, change, or approved PRD set required — the case that previously had
+  no entry point at all. Resumable by id, and it validates the id before any write.
+- `workflows/architecture-notes.md`, the extracted client-neutral contract for the
+  step. It now has three entry points: `/opsx-architect`, the end of a shaping session,
+  and the delivery PM handoff. Previously the step lived inside
+  `workflows/product-shaping.md`, which made sense for one offer point and not for three.
+- The discussion contract is explicit about grounding: check the human's stated stack
+  against the repository before reasoning from it, say when the code disagrees or a
+  claim could not be verified, start with the decision whose answer most constrains the
+  rest, and name what would resolve each unknown — a spike, a measurement, an external
+  limit, or a human decision.
+
+### Changed
+
+- `/opsx-propose` now stops after `design.md` and before `tasks` for `agile-pm`,
+  presenting Context, Decisions with alternatives, Risks / Trade-offs, Migration Plan,
+  Open Questions, and whether an architecture note informed it. Tasks are derived from
+  design, so a correction costs far less before they exist. Silence is not acceptance.
+  The stock spec-driven flow is unaffected.
+- `design.md` cites `workflows/architecture-notes.md` when reading a saved note.
+- `workflows/product-shaping.md` and both `/opsx-pm` offer points delegate to the
+  extracted contract instead of inlining it.
+
+### Compatibility
+
+- Schema version 6, approval format 3, and the artifact graph are unchanged;
+  `design.requires` is untouched and a note remains an input, never a dependency.
+  Existing drafts, changes, approvals, and published records are unaffected. Restart
+  OpenCode after updating to pick up the new command.
+
+### Upgrade From 0.9.0
+
+```bash
+npm install --save-dev github:codehausau/openspec-agile-pm#v0.10.0
+npx openspec-agile-pm update --dry-run
+npx openspec-agile-pm update
+npx openspec-agile-pm doctor
+```
+
 ## 0.9.0
 
 ### Added

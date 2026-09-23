@@ -88,10 +88,10 @@ For requested or useful journeys and flows, follow the installed
 journey tables and Mermaid source in the draft, with text equivalents, and revise
 affected views with the product conversation. This remains shaping, not technical planning.
 Apply the contract's baseline-drift and concurrent-edit checks. Report the saved
-path and next product question, then follow the contract's optional architecture
-note: offer it once when the draft has enough shape, and write
-`docs/architecture/<note-id>.md` only if the human accepts. The note is exploratory,
-covered by no approval, and is not a `design.md`. Stop here: do not run the delivery
+path and next product question, then follow `workflows/architecture-notes.md` in the
+installed schema: offer the architecture discussion once when the draft has enough
+shape, and write `docs/architecture/<note-id>.md` only if the human then asks. The
+note is exploratory, covered by no approval, and is not a `design.md`. Stop here: do not run the delivery
 workflow, scaffold a change, publish product pages, or generate delivery artifacts
 such as specs, design, or tasks.
 
@@ -187,11 +187,13 @@ The remaining sections apply only to delivery mode.
    including the full reviewed digest and baseline, report the PM
    handoff as complete. Then, before the engineering handoff, offer the optional
    architecture step once: ask whether the user wants to work through the
-   architecture and technology choices now. Follow the Optional Architecture Note
-   section of `workflows/product-shaping.md` for that discussion, its save, and its
-   boundaries. Discuss first and save only if asked; the note is exploratory, covered
-   by no approval, and is not a `design.md`. Declining is the default and a decline is
-   not re-offered. Name `/opsx-explore <name>` for deeper free-form investigation.
+   architecture and technology choices now. Follow `workflows/architecture-notes.md`
+   in the installed schema for that discussion, its save, and its boundaries; stop
+   with a request for a bundle update if it is missing. Discuss first and save only if
+   asked; the note is exploratory, covered by no approval, and is not a `design.md`.
+   Declining is the default and a decline is not re-offered. `/opsx-architect
+   <note-id>` reaches the same discussion directly at any time, and
+   `/opsx-explore <name>` remains the deeper free-form thinking mode.
    Create, edit, and skip no engineering artifact here. Tell the user to
    run `/opsx-propose <name>` and choose to continue the existing change; OpenSpec
    will then generate the engineering proposal, specs, design, and tasks from the

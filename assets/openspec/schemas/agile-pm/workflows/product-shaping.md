@@ -115,88 +115,16 @@ follow this document; the OpenCode adapter exposes it through `/opsx-pm --shape`
 
 ## Optional Architecture Note
 
-Shaping explores the product; it does not choose an implementation. Some humans want
-to work through the technical shape next rather than move straight on. This step is
-shared by two offer points, and is offered at most once per session:
-
-- At the end of a shaping session, after the draft path and the next product question.
-- At the delivery PM handoff, once approval passes and before the engineering handoff.
-
-> Optional: we can work through the architecture for this — approaches, technologies,
-> and trade-offs — and I can record the outcome in `docs/architecture/<note-id>.md`.
-> It is exploratory, not a design artifact, an increment, or approval. Want to?
-
-Offer it; never assume it. Silence, "looks good", or continuing the product
-conversation declines. Do not repeat the offer every turn, re-offer after a decline
-in the same session, or make it a condition of ending a session. Staying in shaping
-with no note is a successful outcome. Skip the offer when the draft has no candidate
-capability or boundary with a technical shape yet, and ask a product question instead.
-
-When the human accepts, discuss before writing anything:
-
-- Work through the technical question the way shaping works through product: ask one
-  focused question at a time, surface more than one approach, and name the
-  technologies, interfaces, and operational constraints each approach would commit
-  to. Ground the options in the repository rather than in theory.
-- Separate what the code already does, what the human has decided, what is an
-  assumption, and what is your own suggestion. Never present a preference as a
-  settled choice or invent benchmarks, costs, throughput, or operational experience.
-- Leave competing options open while the human is still weighing them. For deeper
-  free-form investigation, `/opsx-explore` is the existing thinking mode; coming back
-  here to record the outcome is fine.
-- Offer to save only once the discussion has something worth keeping. The human may
-  keep talking, save, or stop with no note at all. A discussion that changes nobody's
-  mind is still a successful outcome.
-
-When the human asks to save it:
-
-1. Resolve the destination before writing. Default to
-   `<planningHome.root>/docs/architecture/<note-id>.md`. When the planning home is a
-   standalone store separate from the repository being designed, ask which root
-   should hold the note instead of guessing. Validate `<note-id>` with the draft-ID
-   rules above and never write outside the resolved directory.
-2. Record the source draft path, its raw-byte SHA-256, and
-   `**Status:** Exploratory — unapproved`. A note is not a `design.md`, an OpenSpec
-   artifact, or a published product page, and never enters the PRD-set manifest or
-   any approval digest.
-3. Describe the technical question, the candidate approaches with their trade-offs,
-   the constraints and unknowns that would decide between them, and what would have
-   to be true for each to work. Prefer options to a single answer; give a
-   recommendation only when asked, and mark it as the agent's view, not a decision.
-4. Write the note as Markdown. Include at least one diagram whenever it describes
-   structure or interaction — component boundaries and dependencies, the sequence
-   across a transport or process, deployment topology, or lifecycle state. Use a
-   fenced `mermaid` block with `flowchart TD`/`flowchart LR`, `sequenceDiagram`, or
-   `stateDiagram-v2`, quoted plain-text labels, and a short text equivalent after
-   each diagram so the note stays readable unrendered. Check the syntax and say
-   whether rendering was also checked. Diagram the approaches being compared rather
-   than a settled design; when two approaches differ structurally, give each its own
-   diagram instead of blending them. A diagram must not introduce a component,
-   interface, or behavior the note's prose does not state.
-5. Reference the candidate capability or requirement headings each approach has to
-   support. If the note exposes product behavior the draft does not cover, raise it
-   as a product question and revise the draft with the human. A note must never add
-   scope the product conversation has not agreed.
-6. Read existing bytes first, reconcile concurrent human edits, use a staged verified
-   replacement, and never report a save that failed.
-
-A compact structural sketch, using the same fictional product as the other examples
-in this bundle and carrying no product-specific scope:
-
-```mermaid
-flowchart LR
-  A["Web client"] -->|"invite request"| B["Invitation service"]
-  B --> C["Identity provider"]
-  B --> D["Notification queue"]
-```
-
-Text equivalent: the web client sends an invite request to the invitation service,
-which checks the identity provider and enqueues a notification.
-
-A note selects no delivery work, assigns no requirement IDs, approves nothing, and
-authorizes no code. It is evidence for a later `design.md`, which still requires the
-approved PRD set and the normal engineering gates. When the draft or the note changes
-so that they disagree, raise it with the human rather than silently rewriting either.
+Some humans want to work through the technical shape next rather than move straight
+on. Follow `workflows/architecture-notes.md` in this installed schema; it is the
+authoritative contract for the offer, the discussion, the saved note, and its
+boundaries. Require that file and stop with a request for a bundle update if it is
+missing. Offer it once at the end of a session, after the draft path and the next
+product question, and only when the draft has a candidate capability or boundary with
+a technical shape. Accepting starts a discussion, not a document; saving
+`docs/architecture/<note-id>.md` is a second, separate consent. The note is
+exploratory, covered by no approval, and never enters the PRD-set manifest. Declining
+is the default and a decline is not re-offered in the same session.
 
 ## Boundaries And Explicit Handoff
 

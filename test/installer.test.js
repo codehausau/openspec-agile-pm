@@ -274,6 +274,7 @@ test("schema-only installs shaping resources and preserves saved drafts across u
   await install({ cwd: root, mode: "init" });
   const resources = [
     "openspec/schemas/agile-pm/workflows/product-shaping.md",
+    "openspec/schemas/agile-pm/workflows/architecture-notes.md",
     "openspec/schemas/agile-pm/workflows/requirements-analysis.md",
     "openspec/schemas/agile-pm/examples/requirements-analysis.md",
     "openspec/schemas/agile-pm/templates/product-draft.md",

@@ -111,10 +111,10 @@ Common options: `--client opencode|none`, `--schema-only`, `--cwd <project-path>
 ```text
 idea -> product shaping -> living PRD with journeys / flows / capabilities
      -> requirements elicitation and analysis -> requirements quality review
-     -> optional architecture note (offered, never assumed)
+     -> architecture discussion (/opsx-architect any time; offered, never assumed)
      -> explicit delivery scoping -> product brief -> increment PRDs
      -> product-docs + publication-plan
-     -> explicit approval -> proposal -> specs + design -> tasks -> apply
+     -> explicit approval -> proposal -> specs -> design (reviewed) -> tasks -> apply
      -> delivery/acceptance reconciliation and reapproval if needed
      -> archive: verify baseline -> publish product set and MkDocs -> preserve history
 ```
@@ -235,7 +235,8 @@ layout checks are reported separately.
 | `/opsx-pm --requirements <draft-id>` | Elicit and quality-review candidate requirements in an existing draft |
 | `/opsx-pm --from-draft <draft-id>` | Explicitly start selecting an increment from a draft |
 | `/opsx-pm <idea-or-change>` | Review and approve an increment and proposed documentation set |
-| `/opsx-propose <change>` | Engineering planning from the approved set |
+| `/opsx-architect <note-id> [topic]` | Work through an architecture or technology question; save a note only if asked |
+| `/opsx-propose <change>` | Engineering planning from the approved set, pausing at `design.md` for review |
 | `/opsx-update <change>` | Reconcile existing engineering artifacts after reapproval |
 | `/opsx-apply <change>` | Implement approved tasks with a per-task agent review and human prompt; return product discoveries for review |
 | `/opsx-archive <change>` | Publish the reconciled approved product set and archive history |
@@ -262,16 +263,30 @@ delivery work. The shared contract is
 
 ### Optional Architecture Note
 
-Sometimes what you want next is the technical shape, not a delivery increment. The
-step is offered once at each of two points: the end of a shaping session, and the
-delivery PM handoff after approval passes and before the engineering handoff.
-Declining is the default; silence or "looks good" is not consent.
+Sometimes what you want is the technical shape, not a delivery increment. Three ways
+in, one shared contract
+([`workflows/architecture-notes.md`](assets/openspec/schemas/agile-pm/workflows/architecture-notes.md)):
 
-Accepting starts a **discussion** — approaches, technologies, trade-offs, and the
-unknowns that would decide between them, one focused question at a time — and only
-saves `docs/architecture/<note-id>.md` if you ask. `/opsx-explore` remains the deeper
-free-form thinking mode. A saved note is read back as input when `design.md` is
-written, so engineering planning continues the conversation instead of restarting it.
+```text
+/opsx-architect import-transport How should remote importers join when they are off-network?
+```
+
+- **`/opsx-architect <note-id> [topic]`** — direct, at any time. No draft, change, or
+  approved PRD set required. Resumable by id.
+- Offered at the **end of a shaping session**.
+- Offered at the **delivery PM handoff**, after approval passes and before the
+  engineering handoff. Declining is the default; silence is not consent.
+
+It starts a **discussion**: it checks your stated stack against the repository, finds
+the decisions the problem actually forces, and gives more than one approach per
+decision with the technologies and operational constraints each commits to — one
+focused question at a time, separating what the code does from assumptions and its own
+suggestions. It saves `docs/architecture/<note-id>.md` — Markdown with Mermaid and text
+equivalents — only when you ask. A discussion that saves nothing is a valid outcome.
+
+`/opsx-explore` remains the deeper free-form thinking mode. A saved note is read back
+as prior discussion when `design.md` is written, so engineering planning continues the
+conversation instead of restarting it; the approved PRD set wins wherever they disagree.
 
 The note is Markdown with embedded Mermaid — `flowchart`, `sequenceDiagram`, or
 `stateDiagram-v2` for component boundaries, interaction sequences, topology, or

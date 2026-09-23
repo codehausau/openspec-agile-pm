@@ -9,89 +9,110 @@ import YAML from "yaml";
 const ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const ASSETS = path.join(ROOT, "assets");
 const SCHEMA = path.join(ASSETS, "openspec/schemas/agile-pm");
-const WORKFLOW = "workflows/product-shaping.md";
+const WORKFLOW = "workflows/architecture-notes.md";
 
 function schemaText(relative) {
   return readFile(path.join(SCHEMA, relative), "utf8");
 }
 
-function noteSection(workflow) {
-  const start = workflow.indexOf("## Optional Architecture Note");
-  assert.notEqual(start, -1, "shaping must define the optional architecture step");
-  return workflow.slice(start, workflow.indexOf("## Boundaries And Explicit Handoff", start));
+function commandText(name) {
+  return readFile(path.join(ASSETS, "opencode/commands", `${name}.md`), "utf8");
 }
 
 // Contract tests for instruction assets, not an agent conversation runner.
-test("shaping offers the architecture note once and never assumes consent", async () => {
-  const section = noteSection(await schemaText(WORKFLOW));
+test("the architecture step is its own contract, reachable without a draft or approval", async () => {
+  const workflow = await schemaText(WORKFLOW);
 
-  assert.match(section, /docs\/architecture\/<note-id>\.md/);
-  assert.match(section, /Offer it; never assume it/);
-  assert.match(section, /continuing the product\s+conversation declines/);
-  assert.match(section, /Do not repeat the offer every turn, re-offer after a decline/);
-  assert.match(section, /with no note is a successful outcome/);
-  assert.match(section, /Skip the offer when the draft has no candidate/);
+  assert.match(workflow, /requires no OpenSpec change, product draft, or approved PRD set/);
+  assert.match(workflow, /`\/opsx-architect <note-id> \[topic\]`/);
+  assert.match(workflow, /At the end of a product shaping session/);
+  assert.match(workflow, /At the delivery PM handoff, after approval passes/);
+  assert.match(workflow, /At points 2 and 3, offer at most once per session/);
+  assert.match(workflow, /Offer it; never assume it/);
+  assert.match(workflow, /Do not repeat the offer every\s+turn, re-offer after a decline/);
+
+  // The two pre-existing offer points now delegate here instead of inlining the step.
+  const shaping = await schemaText("workflows/product-shaping.md");
+  assert.ok(shaping.includes(WORKFLOW), "shaping must delegate to the extracted contract");
+  assert.doesNotMatch(shaping, /When the human accepts, discuss before writing/, "step was extracted");
+  const pm = await commandText("opsx-pm");
+  assert.equal([...pm.matchAll(new RegExp(WORKFLOW, "g"))].length, 2, "both offer points cite it");
+});
+
+test("accepting starts a discussion, and saving is a second, separate consent", async () => {
+  const workflow = await schemaText(WORKFLOW);
+
+  assert.match(workflow, /check it against the\s+repository before reasoning from it/);
+  assert.match(workflow, /Ask one focused question at a time/);
+  assert.match(workflow, /surface more than one approach/);
+  assert.match(workflow, /Name the technologies, interfaces,\s+protocols, and operational constraints/);
+  assert.match(workflow, /never invent benchmarks, costs, throughput, latency, or operational experience/);
+  assert.match(workflow, /Name the unknowns that would decide between approaches/);
+  assert.match(workflow, /`\/opsx-explore` is the existing thinking mode/);
+  assert.match(workflow, /Offer to save only once the discussion has something worth keeping/);
+  assert.match(workflow, /changes nobody's\s+mind is still a successful outcome/);
+
+  const discuss = workflow.indexOf("## The Discussion");
+  const save = workflow.indexOf("## Writing The Note");
+  assert.ok(discuss !== -1 && save !== -1 && discuss < save, "discuss, then write");
 });
 
 test("the note stays exploratory, outside every approval and delivery boundary", async () => {
   const workflow = await schemaText(WORKFLOW);
-  const section = noteSection(workflow);
 
-  assert.match(section, /\*\*Status:\*\* Exploratory — unapproved/);
-  assert.match(section, /never enters the PRD-set manifest or\s+any approval digest/);
-  assert.match(section, /A note is not a `design\.md`/);
-  assert.match(section, /selects no delivery work, assigns no requirement IDs, approves nothing/);
-  assert.match(section, /must never add\s+scope the product conversation has not agreed/);
-  assert.match(section, /still requires the\s+approved PRD set and the normal engineering gates/);
-
-  // Path handling matches the draft-ID rules rather than inventing new ones.
-  assert.match(section, /Validate `<note-id>` with the draft-ID\s+rules above/);
-  assert.match(section, /never write outside the resolved directory/);
-  assert.match(section, /ask which root\s+should hold the note instead of guessing/);
-  assert.match(section, /reconcile concurrent human edits/);
+  assert.match(workflow, /\*\*Exploratory — unapproved\*\*/);
+  assert.match(workflow, /never enters the PRD-set manifest or any\s+approval digest/);
+  assert.match(workflow, /It is not a `design\.md`/);
+  assert.match(workflow, /selects no delivery work, assigns no requirement IDs, approves\s+nothing/);
+  assert.match(workflow, /must never add scope the product conversation has not\s+agreed/);
+  assert.match(workflow, /Validate `<note-id>` as one lowercase kebab-case path segment/);
+  assert.match(workflow, /Reject separators, extensions, absolute paths/);
+  assert.match(workflow, /ask\s+which root should hold the note instead of guessing/);
+  assert.match(workflow, /writes only the selected note and any temporary file/);
+  assert.match(workflow, /route to `\/opsx-pm`/);
 });
 
-test("accepting starts a discussion, and saving is a second, separate consent", async () => {
-  const section = noteSection(await schemaText(WORKFLOW));
-
-  assert.match(section, /When the human accepts, discuss before writing anything/);
-  assert.match(section, /ask one\s+focused question at a time, surface more than one approach/);
-  assert.match(section, /name the\s+technologies, interfaces, and operational constraints/);
-  assert.match(section, /Never present a preference as a\s+settled choice/);
-  assert.match(section, /`\/opsx-explore` is the existing thinking mode/);
-  assert.match(section, /Offer to save only once the discussion has something worth keeping/);
-  assert.match(section, /changes nobody's\s+mind is still a successful outcome/);
-
-  // Discussion comes before any write step.
-  const discuss = section.indexOf("discuss before writing anything");
-  const save = section.indexOf("When the human asks to save it:");
-  const destination = section.indexOf("Resolve the destination before writing");
-  assert.ok(discuss !== -1 && save !== -1 && destination !== -1);
-  assert.ok(discuss < save && save < destination, "discuss, then ask to save, then write");
-});
-
-test("both offer points reach the same shared step", async () => {
+test("the note is Markdown with checked Mermaid diagrams and text equivalents", async () => {
   const workflow = await schemaText(WORKFLOW);
-  const section = noteSection(workflow);
-  assert.match(section, /This step is\s+shared by two offer points/);
-  assert.match(section, /At the end of a shaping session/);
-  assert.match(section, /At the delivery PM handoff, once approval passes/);
-  assert.match(section, /offered at most once per session/);
 
-  // Delivery mode previously never reached this step at all.
-  const command = await readFile(path.join(ASSETS, "opencode/commands/opsx-pm.md"), "utf8");
-  const delivery = command.slice(command.indexOf("The remaining sections apply only to delivery mode"));
-  assert.match(delivery, /offer the optional\s+architecture step once/);
-  assert.match(delivery, /workflows\/product-shaping\.md/);
-  assert.match(delivery, /Discuss first and save only if asked/);
-  assert.match(delivery, /Name `\/opsx-explore <name>` for deeper free-form investigation/);
-  assert.match(delivery, /Create, edit, and skip no engineering artifact here/);
+  assert.match(workflow, /Write the note as Markdown/);
+  for (const type of ["flowchart TD", "sequenceDiagram", "stateDiagram-v2"]) {
+    assert.ok(workflow.includes(type), `architecture needs ${type}, not only user-flow charts`);
+  }
+  assert.match(workflow, /text equivalent after each\s+diagram/);
+  assert.match(workflow, /say whether\s+rendering was also checked/);
+  assert.match(workflow, /give each its own diagram\s+instead of blending them/);
+  assert.match(workflow, /must not introduce a component, interface, or\s+behavior the note's prose does not state/);
 
-  const preflight = delivery.indexOf("Approved product set preflight");
-  const offer = delivery.indexOf("offer the optional");
-  const handoff = delivery.indexOf("run `/opsx-propose <name>`");
-  assert.ok(preflight !== -1 && offer !== -1 && handoff !== -1);
-  assert.ok(preflight < offer && offer < handoff, "approval, then offer, then engineering handoff");
+  // A worked example to imitate; diagrams.test.js parses it with the real parser.
+  const diagrams = [...workflow.matchAll(/^[ \t]*```mermaid[ \t]*\r?\n([\s\S]*?)^[ \t]*```[ \t]*\r?$/gm)];
+  assert.equal(diagrams.length, 1, "one embedded example");
+  assert.match(diagrams[0][1], /^flowchart /m, "kept a flowchart so diagrams.test.js stays unchanged");
+});
+
+test("the /opsx-architect adapter validates its id and writes nothing else", async () => {
+  const command = await commandText("opsx-architect");
+  const frontmatter = YAML.parse(command.match(/^---\n([\s\S]*?)\n---/)[1]);
+
+  assert.equal(frontmatter.agent, "build");
+  assert.match(frontmatter.description, /architecture or technology question/);
+  assert.ok(command.includes("$ARGUMENTS"));
+  assert.ok(command.includes(`openspec/schemas/agile-pm/${WORKFLOW}`));
+  assert.match(command, /stop and request a bundle update/);
+
+  assert.match(command, /one lowercase kebab-case path segment/);
+  assert.match(command, /Reject separators,\s+extensions, absolute paths, `\.\.`, empty ids/);
+  assert.match(command, /before any write/);
+  assert.match(command, /never forward them to\s+the OpenSpec CLI/);
+
+  assert.match(command, /No product draft, change, or approved PRD set is required/);
+  assert.match(command, /Write only the note and any temporary file needed for its safe save/);
+  assert.match(command, /Do not scaffold a change, create or edit proposal\/specs\/design\/tasks/);
+  assert.match(command, /point at `\/opsx-pm`/);
+  assert.match(command, /point at `\/opsx-explore`/);
+
+  // It has no business running the publication preflight the PM-path commands do.
+  assert.doesNotMatch(command, /Approved\s+product set preflight/);
 });
 
 test("a saved note is read back as design input without becoming approved scope", async () => {
@@ -99,6 +120,7 @@ test("a saved note is read back as design input without becoming approved scope"
   const design = schema.artifacts.find(({ id }) => id === "design");
 
   assert.match(design.instruction, /architecture note for this work exists under docs\/architecture\//);
+  assert.match(design.instruction, new RegExp(WORKFLOW.replace("/", "\\/")));
   assert.match(design.instruction, /treat it as prior discussion with the human/);
   assert.match(design.instruction, /cite its path in Context/);
   assert.match(design.instruction, /exploratory input, not approved scope or a\s+decision/);
@@ -106,64 +128,29 @@ test("a saved note is read back as design input without becoming approved scope"
   assert.match(design.instruction, /never create or edit one from this artifact/);
 
   // The note is an input, not a dependency: the graph is untouched.
+  assert.equal(schema.version, 6);
   assert.deepEqual(design.requires, [
     "proposal", "product-approval", "prd", "prd-capabilities", "product-docs", "publication-plan",
-  ]);
-});
-
-test("the note is Markdown with checked Mermaid diagrams and text equivalents", async () => {
-  const section = noteSection(await schemaText(WORKFLOW));
-
-  assert.match(section, /Write the note as Markdown/);
-  assert.match(section, /Include at least one diagram whenever it describes/);
-  for (const type of ["flowchart TD", "sequenceDiagram", "stateDiagram-v2"]) {
-    assert.ok(section.includes(type), `architecture needs ${type}, not only user-flow charts`);
-  }
-  assert.match(section, /text equivalent after\s+each diagram/);
-  assert.match(section, /say\s+whether rendering was also checked/);
-  assert.match(section, /give each its own\s+diagram instead of blending them/);
-  assert.match(section, /must not introduce a component,\s+interface, or behavior the note's prose does not state/);
-
-  // A worked example the agent can imitate; diagrams.test.js parses it for real.
-  const diagrams = [...section.matchAll(/^[ \t]*```mermaid[ \t]*\r?\n([\s\S]*?)^[ \t]*```[ \t]*\r?$/gm)];
-  assert.equal(diagrams.length, 1, "one embedded example");
-  assert.match(diagrams[0][1], /^flowchart /m, "kept a flowchart so diagrams.test.js stays unchanged");
-  assert.match(section, /Text equivalent: the web client sends an invite request/);
-});
-
-test("the note is an extra permitted write, not a new delivery artifact", async () => {
-  const workflow = await schemaText(WORKFLOW);
-  assert.match(workflow, /Shaping writes only the selected draft, an accepted architecture note/);
-  assert.match(workflow, /The optional architecture note below is the one place those questions may be/);
-  assert.match(workflow, /Offer the optional architecture note below when the draft has enough shape/);
-
-  const schema = YAML.parse(await schemaText("schema.yaml"));
-  assert.equal(schema.version, 6, "the artifact graph is unchanged");
-  assert.deepEqual(schema.artifacts.map(({ id }) => id), [
-    "product-brief", "prd", "prd-capabilities", "product-docs", "publication-plan",
-    "product-approval", "proposal", "specs", "design", "tasks",
   ]);
   for (const artifact of schema.artifacts) {
     assert.doesNotMatch(artifact.generates, /architecture/, "notes stay outside the graph");
   }
-
-  // Requirements analysis deliberately keeps its stricter draft-only write boundary.
-  const requirements = await schemaText("workflows/requirements-analysis.md");
-  assert.match(requirements, /Only the draft and temporary safe-save file\s+may be written/);
 });
 
-test("the OpenCode adapter offers the note after the draft and still stops before delivery", async () => {
-  const command = await readFile(path.join(ASSETS, "opencode/commands/opsx-pm.md"), "utf8");
-  const shaping = command.slice(command.indexOf("For shaping, follow"), command.indexOf("For `--from-draft`"));
+test("propose stops at design before deriving tasks from it", async () => {
+  const command = await commandText("opsx-propose");
 
-  assert.match(shaping, /optional architecture\s+note: offer it once when the draft has enough shape/);
-  assert.match(shaping, /only if the human accepts/);
-  assert.match(shaping, /covered by no approval, and is not a `design\.md`/);
-  assert.match(shaping, /do not run the delivery\s+workflow, scaffold a change/);
+  assert.match(command, /also stop after creating `design\.md` and before `tasks`/);
+  assert.match(command, /Decisions with the alternatives considered/);
+  assert.match(command, /say whether an architecture note under\s+`docs\/architecture\/` informed it/);
+  assert.match(command, /Tasks are\s+derived from design, so a correction costs far less before they exist/);
+  assert.match(command, /Silence or an\s+ambiguous reply is not acceptance/);
+  assert.match(command, /update `design\.md` and\s+re-present it instead of advancing/);
+  assert.match(command, /reviews engineering approach, not\s+product scope/);
+  assert.match(command, /any of these human gates/);
 
-  const report = shaping.indexOf("Report the saved");
-  const offer = shaping.indexOf("optional architecture");
-  const stop = shaping.indexOf("Stop here:");
-  assert.ok(report !== -1 && offer !== -1 && stop !== -1);
-  assert.ok(report < offer && offer < stop, "report the draft, then offer, then stop");
+  // Scoped to agile-pm so the stock spec-driven flow is unaffected.
+  const gate = command.indexOf("For `agile-pm`, also stop after creating `design.md`");
+  const block = command.indexOf("**Capability-PRD human gates override automatic continuation.**");
+  assert.ok(block !== -1 && gate > block, "the gate lives in the capability-PRD block");
 });

@@ -101,7 +101,18 @@ When the user is ready to implement, they must start the apply workflow explicit
    plan, and baseline diff, and stop for explicit approval. Create `product-approval`
    only after approval; do not publish product pages or the live MkDocs config. Immediately
    before the first engineering artifact, run the approval preflight from step 4.
-   Never interpret this command's request as approval to cross either human gate.
+
+   For `agile-pm`, also stop after creating `design.md` and before `tasks`. Present its
+   Context, its Decisions with the alternatives considered, Risks / Trade-offs,
+   Migration Plan, and any Open Questions, say whether an architecture note under
+   `docs/architecture/` informed it, and ask the user to accept or revise it. Tasks are
+   derived from design, so a correction costs far less before they exist. Silence or an
+   ambiguous reply is not acceptance. On a revision request, update `design.md` and
+   re-present it instead of advancing. This gate reviews engineering approach, not
+   product scope: a finding that changes product intent, acceptance, or priority
+   follows the design instruction's return path to the PRD set instead.
+
+   Never interpret this command's request as approval to cross any of these human gates.
 
    Loop through artifacts in dependency order (artifacts with no pending dependencies first):
 
